@@ -1,0 +1,61 @@
+import React, { useState, useEffect } from "react";
+import Exercise from "./Exercise";
+import ExerciseContainerHeader from "./ExerciseContainerHeader";
+import EXERCISES from "../../const/exercises";
+import { supabase } from "../../supabase";
+
+function ExerciseContainer({ index, user }) {
+  const [selectedDay, setSelectedDay] = useState("1");
+  const exercises = selectedDay ? EXERCISES[index][selectedDay] : [];
+  const [completedExercises, setCompletedExercises] = useState([]);
+
+  const days = Object.keys(EXERCISES[index]);
+
+  useEffect(() => {
+    const fetchCompletedExercises = async () => {
+      const today = new Date().toISOString().split("T")[0];
+
+      const { data } = await supabase
+        .from("exercise_logs")
+        .select("exercise")
+        .eq("user_id", user.id)
+        .gte("date", today)
+        .lt(
+          "date",
+          new Date(
+            new Date(today).getTime() + 24 * 60 * 60 * 1000
+          ).toISOString()
+        );
+
+      if (data) {
+        setCompletedExercises(data.map((item) => item.exercise));
+      }
+    };
+
+    fetchCompletedExercises();
+  }, [user.id]);
+
+  return (
+    <div className="container mx-auto py-4">
+      <ExerciseContainerHeader
+        selectedDay={selectedDay}
+        onDaySelect={setSelectedDay}
+        days={days}
+        lastDay={user.last_day}
+      />
+      <div className="flex flex-col justify-center items-center p-4 gap-4 m-4 sm:m-8 border border-gray-700 rounded-lg">
+        {exercises.map((exercise, index) => (
+          <div key={index} className="w-full">
+            <Exercise
+              name={exercise.name}
+              user={user}
+              isCompleted={completedExercises.includes(exercise.name)}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default ExerciseContainer;
