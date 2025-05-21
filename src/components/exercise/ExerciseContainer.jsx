@@ -5,11 +5,20 @@ import EXERCISES from "../../const/exercises";
 import { supabase } from "../../supabase";
 
 function ExerciseContainer({ index, user }) {
-  const [selectedDay, setSelectedDay] = useState("1");
+  const [selectedDay, setSelectedDay] = useState(() => {
+    const savedDays = JSON.parse(localStorage.getItem('selectedDays') || '{}');
+    return savedDays[user.username] || "1";
+  });
   const exercises = selectedDay ? EXERCISES[index][selectedDay] : [];
   const [completedExercises, setCompletedExercises] = useState([]);
 
   const days = Object.keys(EXERCISES[index]);
+
+  useEffect(() => {
+    const savedDays = JSON.parse(localStorage.getItem('selectedDays') || '{}');
+    savedDays[user.username] = selectedDay;
+    localStorage.setItem('selectedDays', JSON.stringify(savedDays));
+  }, [selectedDay, user.username]);
 
   useEffect(() => {
     const fetchCompletedExercises = async () => {

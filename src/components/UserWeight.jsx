@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { saveWeight } from '../utils/saveWeight';
-import WeightHistoryModal from './modal/WeightHistoryModal';
+import WeightModal from './modal/WeightModal';
 import { getWeightHistory } from '../utils/getWeightHistory';
 
 function UserWeight({ user }) {
@@ -72,7 +72,7 @@ function UserWeight({ user }) {
         )}
       </div>
 
-      <WeightHistoryModal
+      <WeightModal
         isOpen={showWeightModal}
         onClose={() => setShowWeightModal(false)}
         weightHistory={weightHistory}

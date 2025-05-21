@@ -21,12 +21,23 @@ function Exercise({ name, user, isCompleted }) {
     fetchExerciseHistory
   } = useExercise(name, user);
   
+
+  const handleShowAlternatives = () => {
+    setShowAlternatives(prev => !prev);
+  }
+
   return (
     <div className="flex flex-col gap-2 w-full select-none">
       <div className='flex justify-between items-center gap-2'>
           <div className='flex justify-center items-center gap-2'>
-            {(isCompleted || isFinished) && <span>✅</span>}
-            <p className="font-medium text-sm sm:text-base" onDoubleClick={() => setShowAlternatives(!showAlternatives)}>{exerciseName}</p>
+            {(isCompleted || isFinished) ? ( <span>✅</span> ) : (
+              alternatives.length > 0 && (
+                <span className='text-xs' onClick={handleShowAlternatives}>
+                  🔅
+                </span>
+              )
+            )}
+            <p className="font-medium text-sm sm:text-base" onDoubleClick={handleShowAlternatives}>{exerciseName}</p>
             {exerciseHistory.length > 0 && (
               <div className="flex gap-1">
                 <button
@@ -42,8 +53,8 @@ function Exercise({ name, user, isCompleted }) {
       </div>
       
       {showAlternatives && alternatives.length > 0 && (
-        <div className="bg-gray-800 rounded p-2 mt-1">
-            {alternatives.map((alt, index) => (
+        <div className="flex flex-wrap gap-2 bg-gray-800 rounded p-2 mt-1">
+            {alternatives.filter(alt => alt !== exerciseName).map((alt, index) => (
               <button
                 key={index}
                 className="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded"

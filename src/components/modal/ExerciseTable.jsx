@@ -19,9 +19,9 @@ function ExerciseTable({ onToggleChart, exerciseHistory, exerciseName, user, onD
   };
 
   return (
-      <div>
+      <div className='max-h-[80vh] overflow-y-auto'>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">{exerciseName} History</h2>
+          <h2 className="text-xl font-semibold">{exerciseName}</h2>
           <div className="flex gap-2">
             <button
               onClick={onToggleChart}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ExerciseTable from "./ExerciseTable";
 import ExerciseChart from "./ExerciseChart";
 
@@ -11,6 +11,18 @@ function ExerciseModal({
   onDelete,
 }) {
   const [view, setView] = useState("table");
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -25,7 +37,7 @@ function ExerciseModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[80vh]"
+        className="bg-gray-800 rounded-lg p-6 w-[90%] max-w-2xl max-h-[80vh]"
       >
         {view === "table" ? (
           <ExerciseTable
