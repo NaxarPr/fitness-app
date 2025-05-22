@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useExercise } from '../../hooks/useExercise';
-import ExerciseModal from '../modal/ExerciseModal';
+import ExerciseModal from '../modal/exercise/ExerciseModal';
+import Input from '../common/Input';
+import SystemButton from '../common/SystemButton';
 
 function Exercise({ name, user, isCompleted }) {
   const [showLogsModal, setShowLogsModal] = useState(false);
@@ -49,7 +51,6 @@ function Exercise({ name, user, isCompleted }) {
               </div>
             )}
           </div>
-        <button className='bg-blue-500 text-white px-3 py-1 rounded' disabled={!isReady} style={{ opacity: isReady ? 1 : 0 }} onClick={handleAdd}>Add</button>
       </div>
       
       {showAlternatives && alternatives.length > 0 && (
@@ -76,16 +77,25 @@ function Exercise({ name, user, isCompleted }) {
       
       <div className="flex max-w-96 space-x-2 h-8">
         {oldValues.map((field) => (
-          <input
+          <Input
             key={field.key}
             placeholder={field.placeholder}
             pattern='[0-9]*'
             type='number'
-            className="w-16 h-8 px-2 bg-gray-800 border border-gray-700 rounded text-sm focus:outline-none focus:border-blue-500"
+            className="!w-12 sm:!w-16 h-8"
             value={values[field.key]}
             onChange={(e) => handleChange(field.key, e.target.value)}
           />
         ))}
+        <SystemButton
+          type="primary" 
+          className='z-10'
+          disabled={!isReady} 
+          style={{ opacity: isReady ? 1 : 0 }} 
+          onClick={handleAdd}
+        >
+          Add
+        </SystemButton>
       </div>
 
       <ExerciseModal

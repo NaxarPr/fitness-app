@@ -1,5 +1,5 @@
 import React from 'react';
-import { deleteLastExercise } from '../../utils/deleteLastExercise';
+import { deleteLastExercise } from '../../../utils/deleteLastExercise';
 
 function ExerciseTable({ onToggleChart, exerciseHistory, exerciseName, user, onDelete }) {
 

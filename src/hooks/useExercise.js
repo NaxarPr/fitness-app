@@ -3,13 +3,7 @@ import { supabase } from '../supabase';
 import { addExercise } from '../utils/addExercise';
 import { getExercisesByName } from '../utils/getExercisesByName';
 import EXERCISES from '../const/exercises';
-
-const INITIAL_VALUES = [
-  { key: 'first', placeholder: '1st' },
-  { key: 'second', placeholder: '2nd' },
-  { key: 'third', placeholder: '3rd' },
-  { key: 'fourth', placeholder: '4th' }
-];
+import INITIAL_VALUES from '../const/exercisesInitialValues';
 
 export function useExercise(name, user) {
   const [isReady, setIsReady] = useState(false);

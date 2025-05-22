@@ -3,6 +3,7 @@ import Exercise from "./Exercise";
 import ExerciseContainerHeader from "./ExerciseContainerHeader";
 import EXERCISES from "../../const/exercises";
 import { supabase } from "../../supabase";
+import AddNewExersice from "./AddNewExersice";
 
 function ExerciseContainer({ index, user }) {
   const [selectedDay, setSelectedDay] = useState(() => {
@@ -52,7 +53,8 @@ function ExerciseContainer({ index, user }) {
         days={days}
         lastDay={user.last_day}
       />
-      <div className="flex flex-col justify-center items-center p-4 gap-4 m-4 sm:m-8 border border-gray-700 rounded-lg">
+      <div className="relative flex flex-col justify-center items-center p-4 gap-4 m-4 sm:m-8 border border-gray-700 rounded-lg">
+        <AddNewExersice user={user} />
         {exercises.map((exercise, index) => (
           <div key={index} className="w-full">
             <Exercise
