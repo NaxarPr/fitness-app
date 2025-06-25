@@ -29,6 +29,8 @@ function AddNewExersice({ user }) {
       return (
         <Exercise name={exerciseName} user={user} isCompleted={false}/>
       );
+    default:
+      return null;
   }
 }
 

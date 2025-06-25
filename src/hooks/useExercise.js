@@ -95,6 +95,7 @@ export function useExercise(name, user) {
 
     fetchUsers();
     fetchExerciseHistory();
+    // eslint-disable-next-line 
   }, [exerciseName, user.id]);
 
   const fetchExerciseHistory = async () => {

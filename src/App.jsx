@@ -1,6 +1,6 @@
 import './App.css';
 import { UserProvider } from './context/UserContext';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import ProgramPage from './pages/ProgramPage';
 

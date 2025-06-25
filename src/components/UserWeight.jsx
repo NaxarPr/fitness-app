@@ -32,6 +32,7 @@ function UserWeight({ user }) {
 
   useEffect(() => {
     fetchWeightHistory();
+    // eslint-disable-next-line 
   }, [user]);
 
   return (
