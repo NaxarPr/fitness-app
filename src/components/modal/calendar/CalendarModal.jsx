@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import format from 'date-fns/format';
 import parse from 'date-fns/parse';
@@ -8,6 +8,8 @@ import addMonths from 'date-fns/addMonths';
 import subMonths from 'date-fns/subMonths';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { getTrainingDates } from '../../../utils/getTrainingDates';
+import { getExercisesByDate } from '../../../utils/getExerciseByDate';
+import DayModal from './DayModal';
 
 
 const locales = {
@@ -40,6 +42,9 @@ const CalendarModal = ({ isOpen, onClose }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const monthName = format(currentDate, 'MMMM yyyy');
   const [trainingDates, setTrainingDates] = useState([]);
+  const [isDayModalOpen, setIsDayModalOpen] = useState(false);
+  const [dayExercises, setDayExercises] = useState([]);
+
   useEffect(() => {
     const getTraining = async () => {
       const dates = await getTrainingDates();
@@ -98,9 +103,51 @@ const CalendarModal = ({ isOpen, onClose }) => {
             dayPropGetter={(date) => dayPropGetter(date, trainingDates)}
             date={currentDate}
             onNavigate={setCurrentDate}
+            components={{
+              month: {
+                dateHeader: ({ label, date }) => {
+                  const hasTraining = trainingDates?.some(
+                    (trainingDate) =>
+                      new Date(trainingDate).toDateString() === date.toDateString()
+                  );
+
+                  const isToday = date.toDateString() === new Date().toDateString();
+
+                  return (
+                    <div
+                      className='relative flex flex-col items-center justify-center h-full p-0 m-0'
+                    >
+                      <div
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (hasTraining) {
+                            const exercisesByDate = await getExercisesByDate(date);
+                            setDayExercises(exercisesByDate);
+                            setIsDayModalOpen(true);
+                          }
+                        }}
+                        className={`absolute top-0 left-0 w-full h-14 rounded cursor-pointer transition-transform flex items-center justify-center  m-[2px]
+                          ${isToday ? 'bg-yellow-300 ' : ''}`}
+                      >
+                        {label}
+                      </div>
+                    </div>
+                  );
+                },
+              },
+            }}
           />
         </div>
       </div>
+      <DayModal
+        isOpen={isDayModalOpen}
+        onClose={(e) => {
+          e.stopPropagation();
+          setIsDayModalOpen(false);
+          setDayExercises([]);
+        }}
+        dayExercises={dayExercises}
+      />
     </div>
   );
 };

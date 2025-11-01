@@ -85,6 +85,7 @@ function Exercise({ name, user, isCompleted }) {
             className="!w-12 sm:!w-16 h-8"
             value={values[field.key]}
             onChange={(e) => handleChange(field.key, e.target.value)}
+            onDoubleClick={()=>  handleChange(field.key, field.placeholder)}
           />
         ))}
         <SystemButton
