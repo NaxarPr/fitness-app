@@ -1,11 +1,30 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Exercise from "./Exercise";
-import Input from "../common/Input";
+import Select from "../common/Select";
 import SystemButton from "../common/SystemButton";
+import { getAllUserExercises } from "../../utils/getAllUserExercises";
 
-function AddNewExersice({ user }) {
+function AddNewExersice({ user, setExercises }) {
   const [exerciseName, setExerciseName] = useState("");
   const [step, setStep] = useState(1);
+  const [allUserExercises, setAllUserExercises] = useState([]);
+
+  useEffect(() => {
+    if (step === 2) {
+      const fetchAllUserExercises = async () => {
+        const uniqueUserExercises = await getAllUserExercises({ userId: user.id });
+        setAllUserExercises(uniqueUserExercises);
+      };
+
+      fetchAllUserExercises();
+    }
+  }, [step, user.id]);
+
+  const handleAddExercise = () => {
+    setStep(1);
+    setExerciseName("");
+    setExercises(prev => [...prev, { name: exerciseName }]);
+  }
 
   switch (step) {
     case 1:
@@ -15,19 +34,15 @@ function AddNewExersice({ user }) {
     case 2:
       return (
           <div className='flex justify-between items-center gap-2 w-full'>
-            <Input
-              type="text" 
+            <Select
+              options={allUserExercises}
               value={exerciseName} 
               onChange={(e) => setExerciseName(e.target.value)} 
               placeholder="Exercise Name"
             />
-            <SystemButton type="primary" onClick={() => setStep(3)} disabled={exerciseName.length === 0}>Add</SystemButton>
+            <SystemButton type="primary" onClick={handleAddExercise} disabled={exerciseName.length === 0}>Add</SystemButton>
             <SystemButton type="secondary" onClick={() => setStep(1)}>Cancel</SystemButton>
           </div>
-      );
-    case 3:
-      return (
-        <Exercise name={exerciseName} user={user} isCompleted={false}/>
       );
     default:
       return null;

@@ -1,15 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useExercise } from '../../hooks/useExercise';
 import ExerciseModal from '../modal/exercise/ExerciseModal';
 import Input from '../common/Input';
 import SystemButton from '../common/SystemButton';
 
-function Exercise({ name, user, isCompleted }) {
+function Exercise({ name, user, isCompleted, setCompletedExercises }) {
   const [showLogsModal, setShowLogsModal] = useState(false);
   
   const {
     isReady,
-    isFinished,
     exerciseName,
     oldValues,
     exerciseHistory,
@@ -21,9 +20,8 @@ function Exercise({ name, user, isCompleted }) {
     handleAdd,
     switchExercise,
     fetchExerciseHistory
-  } = useExercise(name, user);
+  } = useExercise(name, user, setCompletedExercises);
   
-
   const handleShowAlternatives = () => {
     setShowAlternatives(prev => !prev);
   }
@@ -32,7 +30,7 @@ function Exercise({ name, user, isCompleted }) {
     <div className="flex flex-col gap-2 w-full select-none">
       <div className='flex justify-between items-center gap-2'>
           <div className='flex justify-center items-center gap-2'>
-            {(isCompleted || isFinished) ? ( <span>✅</span> ) : (
+            {(isCompleted) ? ( <span>✅</span> ) : (
               alternatives.length > 0 && (
                 <span className='text-xs' onClick={handleShowAlternatives}>
                   🔅

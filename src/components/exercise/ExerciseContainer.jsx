@@ -5,12 +5,12 @@ import EXERCISES from "../../const/exercises";
 import { supabase } from "../../supabase";
 import AddNewExersice from "./AddNewExersice";
 
-function ExerciseContainer({ index, user }) {
+export default function ExerciseContainer({ index, user }) {
   const [selectedDay, setSelectedDay] = useState(() => {
     const savedDays = JSON.parse(localStorage.getItem('selectedDays') || '{}');
     return savedDays[user.username] || "1";
   });
-  const exercises = selectedDay ? EXERCISES[index][selectedDay] : [];
+  const [exercises, setExercises] = useState([]);
   const [completedExercises, setCompletedExercises] = useState([]);
 
   const days = Object.keys(EXERCISES[index]);
@@ -19,6 +19,7 @@ function ExerciseContainer({ index, user }) {
     const savedDays = JSON.parse(localStorage.getItem('selectedDays') || '{}');
     savedDays[user.username] = selectedDay;
     localStorage.setItem('selectedDays', JSON.stringify(savedDays));
+    setExercises(selectedDay ? EXERCISES[index][selectedDay] : []);
   }, [selectedDay, user.username]);
 
   useEffect(() => {
@@ -54,13 +55,14 @@ function ExerciseContainer({ index, user }) {
         lastDay={user.last_day}
       />
       <div className="relative flex flex-col justify-center items-center p-4 gap-4 m-4 sm:m-8 border border-gray-700 rounded-lg">
-        <AddNewExersice user={user} />
+        <AddNewExersice user={user} setExercises={setExercises}/>
         {exercises.map((exercise, index) => (
           <div key={index} className="w-full">
             <Exercise
               name={exercise.name}
               user={user}
               isCompleted={completedExercises.includes(exercise.name)}
+              setCompletedExercises={setCompletedExercises}
             />
           </div>
         ))}
@@ -68,5 +70,3 @@ function ExerciseContainer({ index, user }) {
     </div>
   );
 }
-
-export default ExerciseContainer;
