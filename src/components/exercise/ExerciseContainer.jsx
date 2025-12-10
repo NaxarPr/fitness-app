@@ -4,6 +4,7 @@ import ExerciseContainerHeader from "./ExerciseContainerHeader";
 import EXERCISES from "../../const/exercises";
 import { supabase } from "../../supabase";
 import AddNewExersice from "./AddNewExersice";
+import { SortableList } from "./sortable/SortableList.tsx";
 
 export default function ExerciseContainer({ index, user }) {
   const [selectedDay, setSelectedDay] = useState(() => {
@@ -11,6 +12,7 @@ export default function ExerciseContainer({ index, user }) {
     return savedDays[user.username] || "1";
   });
   const [exercises, setExercises] = useState([]);
+  const [items, setItems] = useState([]);
   const [completedExercises, setCompletedExercises] = useState([]);
 
   const days = Object.keys(EXERCISES[index]);
@@ -19,8 +21,14 @@ export default function ExerciseContainer({ index, user }) {
     const savedDays = JSON.parse(localStorage.getItem('selectedDays') || '{}');
     savedDays[user.username] = selectedDay;
     localStorage.setItem('selectedDays', JSON.stringify(savedDays));
-    setExercises(selectedDay ? EXERCISES[index][selectedDay] : []);
-  }, [selectedDay, user.username]);
+    const exercises = selectedDay ? EXERCISES[index][selectedDay] : [];
+    setExercises(exercises);
+    
+  }, [selectedDay, user.username, index]);
+
+  useEffect(() => {
+    setItems(exercises.map((exercise, index) => ({ id: index, name: exercise.name })));
+  }, [exercises]);
 
   useEffect(() => {
     const fetchCompletedExercises = async () => {
@@ -45,7 +53,7 @@ export default function ExerciseContainer({ index, user }) {
 
     fetchCompletedExercises();
   }, [user.id]);
-
+  
   return (
     <div className="container mx-auto py-4">
       <ExerciseContainerHeader
@@ -56,7 +64,7 @@ export default function ExerciseContainer({ index, user }) {
       />
       <div className="relative flex flex-col justify-center items-center p-4 gap-4 m-4 sm:m-8 border border-gray-700 rounded-lg">
         <AddNewExersice user={user} setExercises={setExercises}/>
-        {exercises.map((exercise, index) => (
+        {/* {exercises.map((exercise, index) => (
           <div key={index} className="w-full">
             <Exercise
               name={exercise.name}
@@ -65,7 +73,23 @@ export default function ExerciseContainer({ index, user }) {
               setCompletedExercises={setCompletedExercises}
             />
           </div>
-        ))}
+        ))} */}
+        <SortableList
+          items={items}
+          onChange={setItems}
+          renderItem={(item, active) => (
+            <SortableList.Item id={item.id}>
+              <SortableList.DragHandle />
+              <Exercise
+                name={item.name}
+                user={user}
+                isCompleted={completedExercises.includes(item.name)}
+                setCompletedExercises={setCompletedExercises}
+                active={active}
+              />
+            </SortableList.Item>
+          )}
+        />
       </div>
     </div>
   );

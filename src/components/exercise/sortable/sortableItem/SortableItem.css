@@ -1,0 +1,20 @@
+.SortableItem {
+  display: flex;
+  justify-content: space-between;
+  flex-grow: 1;
+  align-items: center;
+}
+
+.DragHandle {
+  display: flex;
+  width: 12px;
+  padding-right: 15px;
+  cursor: var(--cursor, pointer);
+}
+
+.DragHandle svg {
+  flex: 0 0 auto;
+  margin: auto;
+  overflow: visible;
+  fill: #919eab;
+}

@@ -5,7 +5,7 @@ import Input from '../common/Input';
 import SystemButton from '../common/SystemButton';
 import { Loader } from '../common/Loader';
 
-function Exercise({ name, user, isCompleted, setCompletedExercises }) {
+function Exercise({ name, user, isCompleted, setCompletedExercises, active }) {
   const [showLogsModal, setShowLogsModal] = useState(false);
   
   const {
@@ -75,7 +75,7 @@ function Exercise({ name, user, isCompleted, setCompletedExercises }) {
         </div>
       )}
       
-      <div className="flex max-w-96 space-x-2 h-8">
+      {!active &&<div className="flex max-w-96 space-x-2 h-8">
         {oldValues.map((field) => (
           <Input
             key={field.key}
@@ -103,7 +103,7 @@ function Exercise({ name, user, isCompleted, setCompletedExercises }) {
             Add
           </SystemButton> 
         )}
-      </div>
+      </div>}
 
       <ExerciseModal
         isOpen={showLogsModal}
