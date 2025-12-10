@@ -10,6 +10,7 @@
   width: 12px;
   padding-right: 15px;
   cursor: var(--cursor, pointer);
+  touch-action: none;
 }
 
 .DragHandle svg {
