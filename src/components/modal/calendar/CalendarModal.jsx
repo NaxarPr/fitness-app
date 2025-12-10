@@ -127,7 +127,7 @@ const CalendarModal = ({ isOpen, onClose }) => {
                           }
                         }}
                         className={`absolute top-0 left-0 w-full h-14 rounded cursor-pointer transition-transform flex items-center justify-center  m-[2px]
-                          ${isToday ? 'bg-yellow-300 ' : ''}`}
+                          ${isToday ? 'text-green-300' : ''}`}
                       >
                         {label}
                       </div>

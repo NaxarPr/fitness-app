@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useExercise } from '../../hooks/useExercise';
 import ExerciseModal from '../modal/exercise/ExerciseModal';
 import Input from '../common/Input';
 import SystemButton from '../common/SystemButton';
+import { Loader } from '../common/Loader';
 
 function Exercise({ name, user, isCompleted, setCompletedExercises }) {
   const [showLogsModal, setShowLogsModal] = useState(false);
@@ -15,6 +16,7 @@ function Exercise({ name, user, isCompleted, setCompletedExercises }) {
     showAlternatives,
     alternatives,
     values,
+    isLoading,
     setShowAlternatives,
     handleChange,
     handleAdd,
@@ -86,15 +88,21 @@ function Exercise({ name, user, isCompleted, setCompletedExercises }) {
             onDoubleClick={()=>  handleChange(field.key, field.placeholder)}
           />
         ))}
-        <SystemButton
-          type="primary" 
-          className='z-10'
-          disabled={!isReady} 
-          style={{ opacity: isReady ? 1 : 0 }} 
-          onClick={handleAdd}
-        >
-          Add
-        </SystemButton>
+        {isLoading ? ( 
+          <div className='flex justify-center items-center'>
+            <Loader /> 
+          </div>
+        ) : (
+          <SystemButton
+            type="primary" 
+            className='z-10'
+            disabled={!isReady} 
+            style={{ opacity: isReady ? 1 : 0 }} 
+            onClick={handleAdd}
+          >
+            Add
+          </SystemButton> 
+        )}
       </div>
 
       <ExerciseModal

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Exercise from "./Exercise";
 import Select from "../common/Select";
 import SystemButton from "../common/SystemButton";
 import { getAllUserExercises } from "../../utils/getAllUserExercises";
