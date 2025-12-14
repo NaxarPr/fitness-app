@@ -3,6 +3,7 @@ import { useUsers } from '../context/UserContext';
 import UserCard from '../components/UserCard';
 import { useNavigate } from 'react-router-dom';
 import CalendarModal from '../components/modal/calendar/CalendarModal';
+import { Loader } from '../components/common/Loader';
 
 function HomePage() {
   const navigate = useNavigate();
@@ -11,8 +12,12 @@ function HomePage() {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   if (loading) {
-    return <div className='w-full flex items-center justify-center'>Loading...</div>;
-  }
+    return (
+      <div className='w-full min-h-screen flex flex-col items-center justify-center gap-4'>
+        <Loader size={100} color='green'/>
+        <h1 className='text-white text-2xl font-bold'>Loading...</h1>
+      </div>
+  )}
   
   const handleReverse = () => {
     const newColumn = column === 'flex-col' ? 'flex-col-reverse' : 'flex-col';

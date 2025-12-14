@@ -1,12 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { deleteLastExercise } from '../../../utils/deleteLastExercise';
-
+import { Loader } from '../../common/Loader';
 function ExerciseTable({ onToggleChart, exerciseHistory, exerciseName, user, onDelete }) {
 
-  const handleDelete = async () => {
-    const deleted = await deleteLastExercise(exerciseName, user);
-    if (deleted) {
-      onDelete();
+  const [isDeleting, setIsDeleting] = useState(null);
+  
+  const handleDelete = async (id) => {
+    setIsDeleting(id);
+    try {
+      const deleted = await deleteLastExercise(exerciseName, user);
+      if (deleted) {
+        onDelete();
+      }
+    } catch (error) {
+      console.error('Error deleting last exercise:', error);
+    } finally {
+      setIsDeleting(null);
     }
   };
 
@@ -54,14 +63,19 @@ function ExerciseTable({ onToggleChart, exerciseHistory, exerciseName, user, onD
                   <td className="p-2">{log.third}</td>
                   <td className="p-2">{log.fourth}</td>
                   <td className="p-2">
-                    {isToday(log.date) && (
+                    {isToday(log.date) && !isDeleting && (
                       <button
-                        onClick={handleDelete}
+                        onClick={() => handleDelete(log.id)}
                         title="Delete this entry"
                         className="text-red-400 hover:text-red-300"
                       >
                         ❌
                       </button>
+                    )}
+                    {isDeleting === log.id && (
+                      <div className="flex justify-center items-center">
+                        <Loader size={14} color='red'/>
+                      </div>
                     )}
                   </td>
                 </tr>

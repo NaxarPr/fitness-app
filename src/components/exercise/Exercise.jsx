@@ -111,7 +111,10 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active }) {
         exerciseHistory={exerciseHistory}
         exerciseName={exerciseName}
         user={user}
-        onDelete={fetchExerciseHistory}
+        onDelete={() => {
+          fetchExerciseHistory();
+          setCompletedExercises(prev => prev.filter(exercise => exercise !== exerciseName));
+        }}
       />
     </div>
   );
