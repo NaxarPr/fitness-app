@@ -44,6 +44,7 @@ const CalendarModal = ({ isOpen, onClose }) => {
   const [trainingDates, setTrainingDates] = useState([]);
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
   const [dayExercises, setDayExercises] = useState([]);
+  const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
     const getTraining = async () => {
@@ -123,6 +124,7 @@ const CalendarModal = ({ isOpen, onClose }) => {
                           if (hasTraining) {
                             const exercisesByDate = await getExercisesByDate(date);
                             setDayExercises(exercisesByDate);
+                            setSelectedDate(date);
                             setIsDayModalOpen(true);
                           }
                         }}
@@ -145,8 +147,10 @@ const CalendarModal = ({ isOpen, onClose }) => {
           e.stopPropagation();
           setIsDayModalOpen(false);
           setDayExercises([]);
+          setSelectedDate(null);
         }}
         dayExercises={dayExercises}
+        date={selectedDate}
       />
     </div>
   );

@@ -4,6 +4,7 @@ import UserCard from '../components/UserCard';
 import { useNavigate } from 'react-router-dom';
 import CalendarModal from '../components/modal/calendar/CalendarModal';
 import { Loader } from '../components/common/Loader';
+import { StartStopTraining } from '../components/StartStopTraining';
 
 function HomePage() {
   const navigate = useNavigate();
@@ -35,10 +36,11 @@ function HomePage() {
   const closeCalendar = () => {
     setIsCalendarOpen(false);
   }
-  
+
   return (
     <div className='relative w-full'>
-      <div className='flex absolute top-2 right-2 items-center gap-2'>
+      <StartStopTraining />
+      <div className='flex absolute top-3 right-3 items-center gap-2 leading-none'>
         <button onClick={openCalendar}>📅</button>
         <button onClick={openExercises}>📝</button>
         <button onClick={handleReverse} className='sm:hidden block'>🔃</button>
