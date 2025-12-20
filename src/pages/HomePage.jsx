@@ -24,8 +24,7 @@ function HomePage() {
     setColumn(newColumn);
   }
 
-  const handleContextMenu = (e) => {
-    e.preventDefault();
+  const openExercises = (e) => {
     navigate('/exercises');
   }
 
@@ -40,8 +39,9 @@ function HomePage() {
   return (
     <div className='relative w-full'>
       <div className='flex absolute top-2 right-2 items-center gap-2'>
-        <button onClick={openCalendar} onContextMenu={handleContextMenu}>📅</button>
-        <button onClick={handleReverse}>🔃</button>
+        <button onClick={openCalendar}>📅</button>
+        <button onClick={openExercises}>📝</button>
+        <button onClick={handleReverse} className='sm:hidden block'>🔃</button>
       </div>
       <div className={`flex w-full ${column} md:flex-row`}>
         {users.map((user, index) => (

@@ -1,7 +1,7 @@
 import { supabase } from "../supabase";
 import EXERCISES from "../const/exercises";
 
-export const getLastExercise = async (user) => {
+export const getLastExercise = async (user, userExercises) => {
   const { data: lastExercise } = await supabase
     .from('exercise_logs')
     .select('*')
@@ -20,9 +20,7 @@ export const getLastExercise = async (user) => {
 
   if (programIndex === -1) return 1;
 
-  const day = Object.entries(EXERCISES[programIndex]).find(([_, exercises]) =>
-    exercises.some(ex => ex.name === lastExercise.exercise)
-  )?.[0];
+  const day = userExercises.filter(exercise => exercise.exercise_name === lastExercise.exercise).pop().day_number;
   
   return day;
 }; 

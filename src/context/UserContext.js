@@ -56,9 +56,9 @@ export function UserProvider({ children }) {
         
         const usersWithWeight = await Promise.all(usersData.map(async user => {
           const userWeight = weightData.filter(weight => weight.user_id === user.id).pop();
-          const lastDay = await getLastExercise(user);
           const userExercises = exercisesByUser[user.id] || [];
-          
+          const lastDay = await getLastExercise(user, userExercises);
+
           return {
             ...user,
             weight: userWeight ? userWeight.weight : null,

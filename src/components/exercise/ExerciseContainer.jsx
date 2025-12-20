@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Exercise from "./Exercise";
 import ExerciseContainerHeader from "./ExerciseContainerHeader";
-import EXERCISES from "../../const/exercises";
 import { supabase } from "../../supabase";
 import AddNewExersice from "./AddNewExersice";
 import { SortableList } from "./sortable/SortableList.tsx";
@@ -15,13 +14,13 @@ export default function ExerciseContainer({ index, user }) {
   const [items, setItems] = useState([]);
   const [completedExercises, setCompletedExercises] = useState([]);
 
-  const days = Object.keys(EXERCISES[index]);
+  const days = Object.keys(user.program);
 
   useEffect(() => {
     const savedDays = JSON.parse(localStorage.getItem('selectedDays') || '{}');
     savedDays[user.username] = selectedDay;
     localStorage.setItem('selectedDays', JSON.stringify(savedDays));
-    const exercises = selectedDay ? EXERCISES[index][selectedDay] : [];
+    const exercises = selectedDay ? user.program[selectedDay] : [];
     setExercises(exercises);
     
   }, [selectedDay, user.username, index]);
@@ -62,18 +61,8 @@ export default function ExerciseContainer({ index, user }) {
         days={days}
         lastDay={user.last_day}
       />
-      <div className="relative flex flex-col justify-center items-center p-4 gap-4 m-4 sm:m-8 border border-gray-700 rounded-lg">
+      {exercises.length > 0 && <div className="relative flex flex-col justify-center items-center p-4 gap-4 m-4 sm:m-8 border border-gray-700 rounded-lg">
         <AddNewExersice user={user} setExercises={setExercises}/>
-        {/* {exercises.map((exercise, index) => (
-          <div key={index} className="w-full">
-            <Exercise
-              name={exercise.name}
-              user={user}
-              isCompleted={completedExercises.includes(exercise.name)}
-              setCompletedExercises={setCompletedExercises}
-            />
-          </div>
-        ))} */}
         <SortableList
           items={items}
           onChange={setItems}
@@ -90,7 +79,7 @@ export default function ExerciseContainer({ index, user }) {
             </SortableList.Item>
           )}
         />
-      </div>
+      </div>}
     </div>
   );
 }
