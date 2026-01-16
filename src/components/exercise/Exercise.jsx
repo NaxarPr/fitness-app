@@ -5,7 +5,7 @@ import Input from '../common/Input';
 import SystemButton from '../common/SystemButton';
 import { Loader } from '../common/Loader';
 
-function Exercise({ name, user, isCompleted, setCompletedExercises, active }) {
+function Exercise({ name, user, isCompleted, setCompletedExercises, active, setExercises }) {
   const [showLogsModal, setShowLogsModal] = useState(false);
   
   const {
@@ -45,6 +45,7 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active }) {
                 <button
                   className="text-xs text-gray-400"
                   onClick={() => setShowLogsModal(true)}
+                  onContextMenu={() => setExercises(prev => prev.filter(exercise => exercise.name !== exerciseName))}
                 >
                   📋
                 </button>
