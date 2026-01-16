@@ -1,10 +1,6 @@
-import { useState } from 'react';
 import { useUsers } from '../context/UserContext';
 import UserCard from '../components/UserCard';
-import { useNavigate } from 'react-router-dom';
-import CalendarModal from '../components/modal/calendar/CalendarModal';
 import { Loader } from '../components/common/Loader';
-import { StartStopTraining } from '../components/StartStopTraining';
 import { TopBar } from '../components/TopBar';
 
 function HomePage() {

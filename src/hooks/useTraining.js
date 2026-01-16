@@ -14,27 +14,6 @@ export function useTraining() {
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  const calculateElapsedTime = (startTimestamp) => {
-    if (!startTimestamp) return '00:00:00';
-    
-    try {
-      const startDate = new Date(startTimestamp);
-      
-      if (isNaN(startDate.getTime())) {
-        return '00:00:00';
-      }
-      
-      const now = new Date();
-      const elapsedSeconds = Math.floor((now - startDate) / 1000);
-      
-      if (elapsedSeconds < 0 || isNaN(elapsedSeconds)) return '00:00:00';
-      
-      return formatTime(elapsedSeconds);
-    } catch (error) {
-      return '00:00:00';
-    }
-  };
-
   const handleStartTraining = async () => {
     setIsLoading(true);
     try{
@@ -82,6 +61,27 @@ export function useTraining() {
       setElapsedTime('00:00:00');
       return;
     }
+
+    const calculateElapsedTime = (startTimestamp) => {
+      if (!startTimestamp) return '00:00:00';
+      
+      try {
+        const startDate = new Date(startTimestamp);
+        
+        if (isNaN(startDate.getTime())) {
+          return '00:00:00';
+        }
+        
+        const now = new Date();
+        const elapsedSeconds = Math.floor((now - startDate) / 1000);
+        
+        if (elapsedSeconds < 0 || isNaN(elapsedSeconds)) return '00:00:00';
+        
+        return formatTime(elapsedSeconds);
+      } catch (error) {
+        return '00:00:00';
+      }
+    };
 
     const updateTimer = () => {
       setElapsedTime(calculateElapsedTime(startTrainingTime));
