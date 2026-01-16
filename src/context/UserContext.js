@@ -7,6 +7,7 @@ const UserContext = createContext();
 export function UserProvider({ children }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [column, setColumn] = useState('flex-col');
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -80,6 +81,8 @@ export function UserProvider({ children }) {
   const value = {
     users,
     loading,
+    column,
+    setColumn,
     setUsers
   };
 

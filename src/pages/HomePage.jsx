@@ -5,12 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import CalendarModal from '../components/modal/calendar/CalendarModal';
 import { Loader } from '../components/common/Loader';
 import { StartStopTraining } from '../components/StartStopTraining';
+import { TopBar } from '../components/TopBar';
 
 function HomePage() {
-  const navigate = useNavigate();
-  const { users, loading } = useUsers();
-  const [column, setColumn] = useState('flex-col');
-  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const { users, loading, column } = useUsers();
 
   if (loading) {
     return (
@@ -20,37 +18,15 @@ function HomePage() {
       </div>
   )}
   
-  const handleReverse = () => {
-    const newColumn = column === 'flex-col' ? 'flex-col-reverse' : 'flex-col';
-    setColumn(newColumn);
-  }
-
-  const openExercises = (e) => {
-    navigate('/exercises');
-  }
-
-  const openCalendar = async () => {
-    setIsCalendarOpen(true);
-  }
-
-  const closeCalendar = () => {
-    setIsCalendarOpen(false);
-  }
 
   return (
     <div className='relative w-full'>
-      <StartStopTraining />
-      <div className='flex absolute top-3 right-3 items-center gap-2 leading-none'>
-        <button onClick={openCalendar}>📅</button>
-        <button onClick={openExercises}>📝</button>
-        <button onClick={handleReverse} className='sm:hidden block'>🔃</button>
-      </div>
+      <TopBar />
       <div className={`flex w-full ${column} md:flex-row`}>
         {users.map((user, index) => (
           <UserCard key={user.id} user={user} index={index}/>
         ))}
       </div>
-      <CalendarModal isOpen={isCalendarOpen} onClose={closeCalendar}/>
     </div>
   );
 }
