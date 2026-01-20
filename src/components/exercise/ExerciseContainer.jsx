@@ -26,7 +26,7 @@ export default function ExerciseContainer({ index, user }) {
         days={days}
         lastDay={user.last_day}
       />
-      {exercises.length > 0 && <div className="relative flex flex-col justify-center items-center p-4 gap-4 m-4 sm:m-8 border border-gray-700 rounded-lg">
+      {exercises.length > 0 && <div className="relative flex flex-col justify-center items-center p-4 m-4 sm:m-8 border border-gray-700 rounded-lg">
         <AddNewExersice user={user} setExercises={setExercises}/>
         <SortableList
           items={items}

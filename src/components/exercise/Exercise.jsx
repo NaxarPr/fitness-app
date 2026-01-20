@@ -4,10 +4,14 @@ import ExerciseModal from '../modal/exercise/ExerciseModal';
 import Input from '../common/Input';
 import SystemButton from '../common/SystemButton';
 import { Loader } from '../common/Loader';
+import ContextMenu from '../common/ContextMenu';
+import { useContextMenu } from '../../hooks/useContextMenu';
 
 function Exercise({ name, user, isCompleted, setCompletedExercises, active, setExercises }) {
   const [showLogsModal, setShowLogsModal] = useState(false);
-  
+  const { contextMenu, handleContextMenu, closeContextMenu } = useContextMenu();
+  const [isFocused, setIsFocused] = useState(false);
+
   const {
     isReady,
     exerciseName,
@@ -26,53 +30,71 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, setE
   
   const handleShowAlternatives = () => {
     setShowAlternatives(prev => !prev);
-  }
+  };
+
+  const handleDelete = () => {
+    setExercises(prev => prev.filter(exercise => exercise.name !== exerciseName));
+  };
+
+  const contextMenuItems = [
+    ...(alternatives.length > 0 ? [{
+      icon: '🔄',
+      label: showAlternatives ? 'Hide alternatives' : 'Show alternatives',
+      onClick: handleShowAlternatives,
+    }] : []),
+    ...(exerciseHistory.length > 0 ? [{
+      icon: '📊',
+      label: 'Show all exercises data',
+      onClick: () => setShowLogsModal(true),
+    }] : []),
+    {
+      icon: '🗑️',
+      label: 'Delete exercise',
+      onClick: handleDelete,
+      variant: 'danger',
+    },
+  ];
 
   return (
-    <div className="flex flex-col gap-2 w-full select-none">
+    <div className={`p-2 flex flex-col gap-2 w-full select-none rounded-lg ${isFocused ? 'shadow-lg shadow-gray-700' : ''}`} 
+      onContextMenu={handleContextMenu} 
+      onTouchStart={() => setIsFocused(true)}
+      onTouchEnd={() => setIsFocused(false)}
+    >
       <div className='flex justify-between items-center gap-2'>
-          <div className='flex justify-center items-center gap-2'>
-            {(isCompleted) ? ( <span>✅</span> ) : (
-              alternatives.length > 0 && (
-                <span className='text-xs' onClick={handleShowAlternatives}>
-                  🔅
-                </span>
-              )
-            )}
-            <p className="font-medium text-sm sm:text-base" onDoubleClick={handleShowAlternatives}>{exerciseName}</p>
-            {exerciseHistory.length > 0 && (
-              <div className="flex gap-1">
-                <button
-                  className="text-xs text-gray-400"
-                  onClick={() => setShowLogsModal(true)}
-                  onContextMenu={() => setExercises(prev => prev.filter(exercise => exercise.name !== exerciseName))}
-                >
-                  📋
-                </button>
-              </div>
-            )}
-          </div>
-      </div>
+        <div className='flex justify-center items-center gap-2'>
+          {(isCompleted) ? ( <span>✅</span> ) : null}
+          <p className='font-medium text-sm sm:text-base'>{exerciseName}{alternatives.length ? '*' : null}</p>
+        </div>
+    </div>
       
       {showAlternatives && alternatives.length > 0 && (
-        <div className="flex flex-wrap gap-2 bg-gray-800 rounded p-2 mt-1">
-            {alternatives.filter(alt => alt !== exerciseName).map((alt, index) => (
-              <button
-                key={index}
-                className="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded"
-                onClick={() => switchExercise(alt)}
-              >
-                {alt}
-              </button>
-            ))}
-            {exerciseName !== name && (
-              <button
-                className="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded"
-                onClick={() => switchExercise(name)}
-              >
-                {name}
-              </button>
-            )}
+        <div className='flex items-center justify-between gap-2'>
+          <div className="flex flex-wrap gap-2 bg-gray-800 rounded p-2 mt-1 w-full">
+              {alternatives.filter(alt => alt !== exerciseName).map((alt, index) => (
+                <button
+                  key={index}
+                  className="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded"
+                  onClick={() => switchExercise(alt)}
+                >
+                  {alt}
+                </button>
+              ))}
+              {exerciseName !== name && (
+                <button
+                  className="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded"
+                  onClick={() => switchExercise(name)}
+                >
+                  {name}
+                </button>
+              )}
+
+          </div>
+          <button
+            onClick={() => setShowAlternatives(false)}
+          >
+            ❌
+          </button>
         </div>
       )}
       
@@ -105,6 +127,14 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, setE
           </SystemButton> 
         )}
       </div>}
+
+      <ContextMenu
+        isOpen={contextMenu.isOpen}
+        position={{ x: contextMenu.x, y: contextMenu.y }}
+        onClose={closeContextMenu}
+        items={contextMenuItems}
+        ariaLabel="Exercise context menu"
+      />
 
       <ExerciseModal
         isOpen={showLogsModal}
