@@ -5,12 +5,12 @@ import Input from '../common/Input';
 import SystemButton from '../common/SystemButton';
 import { Loader } from '../common/Loader';
 import ContextMenu from '../common/ContextMenu';
+import SwipeToAction from '../common/SwipeToAction';
 import { useContextMenu } from '../../hooks/useContextMenu';
 
-function Exercise({ name, user, isCompleted, setCompletedExercises, active, setExercises }) {
+function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDelete }) {
   const [showLogsModal, setShowLogsModal] = useState(false);
   const { contextMenu, handleContextMenu, closeContextMenu } = useContextMenu();
-  const [isFocused, setIsFocused] = useState(false);
 
   const {
     isReady,
@@ -32,8 +32,13 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, setE
     setShowAlternatives(prev => !prev);
   };
 
-  const handleDelete = () => {
-    setExercises(prev => prev.filter(exercise => exercise.name !== exerciseName));
+  const handleLongPress = ({ x, y }) => {
+    const syntheticEvent = {
+      preventDefault: () => {},
+      clientX: x,
+      clientY: y,
+    };
+    handleContextMenu(syntheticEvent);
   };
 
   const contextMenuItems = [
@@ -50,83 +55,88 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, setE
     {
       icon: '🗑️',
       label: 'Delete exercise',
-      onClick: handleDelete,
+      onClick: () => onDelete(exerciseName),
       variant: 'danger',
     },
   ];
 
   return (
-    <div className={`p-2 flex flex-col gap-2 w-full select-none rounded-lg ${isFocused ? 'shadow-lg shadow-gray-700' : ''}`} 
-      onContextMenu={handleContextMenu} 
-      onTouchStart={() => setIsFocused(true)}
-      onTouchEnd={() => setIsFocused(false)}
-    >
-      <div className='flex justify-between items-center gap-2'>
-        <div className='flex justify-center items-center gap-2'>
-          {(isCompleted) ? ( <span>✅</span> ) : null}
-          <p className='font-medium text-sm sm:text-base'>{exerciseName}{alternatives.length ? '*' : null}</p>
-        </div>
-    </div>
-      
-      {showAlternatives && alternatives.length > 0 && (
-        <div className='flex items-center justify-between gap-2'>
-          <div className="flex flex-wrap gap-2 bg-gray-800 rounded p-2 mt-1 w-full">
-              {alternatives.filter(alt => alt !== exerciseName).map((alt, index) => (
-                <button
-                  key={index}
-                  className="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded"
-                  onClick={() => switchExercise(alt)}
-                >
-                  {alt}
-                </button>
+    <>
+      <SwipeToAction
+        onAction={() => onDelete(exerciseName)}
+        onLongPress={handleLongPress}
+      >
+        <div 
+          className="p-2 flex flex-col gap-2 w-full select-none"
+          onContextMenu={handleContextMenu}
+        >
+          <div className='flex justify-between items-center gap-2'>
+            <div className='flex justify-center items-center gap-2'>
+              {isCompleted && <span>✅</span>}
+              <p className='font-medium text-sm sm:text-base'>{exerciseName}{alternatives.length ? '*' : null}</p>
+            </div>
+          </div>
+          
+          {showAlternatives && alternatives.length > 0 && (
+            <div className='flex items-center justify-between gap-2'>
+              <div className="flex flex-wrap gap-2 bg-gray-800 rounded p-2 mt-1 w-full">
+                {alternatives.filter(alt => alt !== exerciseName).map((alt, index) => (
+                  <button
+                    key={index}
+                    className="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded"
+                    onClick={() => switchExercise(alt)}
+                  >
+                    {alt}
+                  </button>
+                ))}
+                {exerciseName !== name && (
+                  <button
+                    className="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded"
+                    onClick={() => switchExercise(name)}
+                  >
+                    {name}
+                  </button>
+                )}
+              </div>
+              <button onClick={() => setShowAlternatives(false)}>
+                ❌
+              </button>
+            </div>
+          )}
+          
+          {!active && (
+            <div className="flex max-w-96 space-x-2 h-8">
+              {oldValues.map((field) => (
+                <Input
+                  key={field.key}
+                  placeholder={field.placeholder}
+                  pattern='[0-9]*'
+                  type='number'
+                  className="!w-12 sm:!w-16 h-8"
+                  value={values[field.key]}
+                  onChange={(e) => handleChange(field.key, e.target.value)}
+                  onDoubleClick={() => handleChange(field.key, field.placeholder)}
+                />
               ))}
-              {exerciseName !== name && (
-                <button
-                  className="text-xs bg-gray-700 hover:bg-gray-600 px-2 py-1 rounded"
-                  onClick={() => switchExercise(name)}
+              {isLoading ? ( 
+                <div className='flex justify-center items-center'>
+                  <Loader /> 
+                </div>
+              ) : (
+                <SystemButton
+                  type="primary" 
+                  className='z-10'
+                  disabled={!isReady} 
+                  style={{ opacity: isReady ? 1 : 0 }} 
+                  onClick={handleAdd}
                 >
-                  {name}
-                </button>
+                  Add
+                </SystemButton> 
               )}
-
-          </div>
-          <button
-            onClick={() => setShowAlternatives(false)}
-          >
-            ❌
-          </button>
+            </div>
+          )}
         </div>
-      )}
-      
-      {!active &&<div className="flex max-w-96 space-x-2 h-8">
-        {oldValues.map((field) => (
-          <Input
-            key={field.key}
-            placeholder={field.placeholder}
-            pattern='[0-9]*'
-            type='number'
-            className="!w-12 sm:!w-16 h-8"
-            value={values[field.key]}
-            onChange={(e) => handleChange(field.key, e.target.value)}
-            onDoubleClick={()=>  handleChange(field.key, field.placeholder)}
-          />
-        ))}
-        {isLoading ? ( 
-          <div className='flex justify-center items-center'>
-            <Loader /> 
-          </div>
-        ) : (
-          <SystemButton
-            type="primary" 
-            className='z-10'
-            disabled={!isReady} 
-            style={{ opacity: isReady ? 1 : 0 }} 
-            onClick={handleAdd}
-          >
-            Add
-          </SystemButton> 
-        )}
-      </div>}
+      </SwipeToAction>
 
       <ContextMenu
         isOpen={contextMenu.isOpen}
@@ -147,7 +157,7 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, setE
           setCompletedExercises(prev => prev.filter(exercise => exercise !== exerciseName));
         }}
       />
-    </div>
+    </>
   );
 }
 

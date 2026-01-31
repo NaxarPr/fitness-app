@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "../supabase";
 
 export function useExercisesList({ index, user }) {
@@ -23,6 +23,11 @@ export function useExercisesList({ index, user }) {
   useEffect(() => {
     setItems(exercises.map((exercise, index) => ({ id: index, name: exercise.name })));
   }, [exercises]);
+
+  const handleDeleteExercise = useCallback((exerciseName) => {
+    setItems(prev => prev.filter(item => item.name !== exerciseName));
+    setExercises(prev => prev.filter(exercise => exercise.name !== exerciseName));
+  }, []);
 
   useEffect(() => {
     const fetchCompletedExercises = async () => {
@@ -58,5 +63,6 @@ export function useExercisesList({ index, user }) {
     completedExercises,
     setCompletedExercises,
     days,
+    handleDeleteExercise,
   };
 } 

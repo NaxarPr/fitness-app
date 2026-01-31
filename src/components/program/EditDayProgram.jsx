@@ -1,5 +1,6 @@
 import React from 'react';
 import AddNewExersice from '../exercise/AddNewExersice';
+import SwipeToAction from '../common/SwipeToAction';
 
 export const EditDayProgram = ({ user, dayNumber, setDayNumber, exercises, setExercises, handleSaveClick }) => {
   return (
@@ -7,16 +8,19 @@ export const EditDayProgram = ({ user, dayNumber, setDayNumber, exercises, setEx
       <input type="number" placeholder='Enter day number' className='bg-gray-800 rounded-md px-2 py-1 max-w-[50px]' value={dayNumber} onChange={(e) => setDayNumber(e.target.value)} />
       {exercises.length > 0 && (
       <div>
-          <ul className="list-disc pl-6 gap-2">
+          <ul className="flex flex-col gap-2">
               {exercises.map((exercise, index) => (
-              <li key={index} className="flex items-center gap-2">
-                  <span>
-                      {exercise.name}
-                  </span>
-                  <button onClick={() => setExercises(prev => prev.filter(ex => ex.name !== exercise.name))}>
-                      ❌
-                  </button>
-              </li>
+                <SwipeToAction
+                  key={index}
+                  onAction={() => setExercises(prev => prev.filter(ex => ex.name !== exercise.name))}
+                  block={false}
+                >
+                  <li className="flex items-center px-2 py-1 border border-gray-700 rounded-lg">
+                      <span>
+                         {index + 1}. {exercise.name}
+                      </span>
+                  </li>
+                </SwipeToAction>
               ))}
           </ul>
       </div>

@@ -16,6 +16,7 @@ export default function ExerciseContainer({ index, user }) {
     completedExercises,
     setCompletedExercises,
     days,
+    handleDeleteExercise,
   } = useExercisesList({ index, user });
   
   return (
@@ -40,7 +41,7 @@ export default function ExerciseContainer({ index, user }) {
                 isCompleted={completedExercises.includes(item.name)}
                 setCompletedExercises={setCompletedExercises}
                 active={active}
-                setExercises={setExercises}
+                onDelete={handleDeleteExercise}
               />
             </SortableList.Item>
           )}

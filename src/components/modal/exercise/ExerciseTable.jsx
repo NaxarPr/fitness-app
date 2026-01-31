@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { deleteLastExercise } from '../../../utils/deleteLastExercise';
 import { Loader } from '../../common/Loader';
-function ExerciseTable({ onToggleChart, exerciseHistory, exerciseName, user, onDelete }) {
+import SwipeToAction from '../../common/SwipeToAction';
 
+function ExerciseTable({ onToggleChart, exerciseHistory, exerciseName, user, onDelete }) {
   const [isDeleting, setIsDeleting] = useState(null);
   
   const handleDelete = async (id) => {
@@ -28,63 +29,60 @@ function ExerciseTable({ onToggleChart, exerciseHistory, exerciseName, user, onD
   };
 
   return (
-      <div className='max-h-[80vh] overflow-y-auto'>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">{exerciseName}</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={onToggleChart}
-              className="px-3 py-1 rounded bg-gray-700 text-gray-300 hover:bg-gray-600"
-            >
-              📈
-            </button>
-          </div>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-gray-700">
-                <th className="text-left p-2">Date</th>
-                <th className="text-left p-2">1st</th>
-                <th className="text-left p-2">2nd</th>
-                <th className="text-left p-2">3rd</th>
-                <th className="text-left p-2">4th</th>
-              </tr>
-            </thead>
-            <tbody>
-              {exerciseHistory.map((log) => (
-                <tr key={log.id} className="border-b border-gray-700 hover:bg-gray-700">
-                  <td className="p-2">
-                    {new Date(log.date).toLocaleDateString()}
-                  </td>
-                  <td className="p-2">{log.first}</td>
-                  <td className="p-2">{log.second}</td>
-                  <td className="p-2">{log.third}</td>
-                  <td className="p-2">{log.fourth}</td>
-                  <td className="p-2">
-                    {isToday(log.date) && !isDeleting && (
-                      <button
-                        onClick={() => handleDelete(log.id)}
-                        title="Delete this entry"
-                        className="text-red-400 hover:text-red-300"
-                      >
-                        ❌
-                      </button>
-                    )}
-                    {isDeleting === log.id && (
-                      <div className="flex justify-center items-center">
-                        <Loader size={14} color='red'/>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div className='max-h-[80vh] overflow-y-auto'>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-semibold">{exerciseName}</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={onToggleChart}
+            className="px-3 py-1 rounded bg-gray-700 text-gray-300 hover:bg-gray-600"
+          >
+            📈
+          </button>
         </div>
       </div>
+      
+      <div className="overflow-x-auto">
+        <div className="flex border-b border-gray-700 text-sm font-semibold">
+          <div className="flex-1 p-2 min-w-[100px]">Date</div>
+          <div className="w-12 p-2 text-center">1st</div>
+          <div className="w-12 p-2 text-center">2nd</div>
+          <div className="w-12 p-2 text-center">3rd</div>
+          <div className="w-12 p-2 text-center">4th</div>
+        </div>
+        
+        <div className="text-sm">
+          {exerciseHistory.map((log) => {
+            const canDelete = isToday(log.date) && !isDeleting;
+            
+            return (
+              <SwipeToAction
+                key={log.id}
+                onAction={() => handleDelete(log.id)}
+                block={!canDelete}
+                backgroundColor={canDelete ? 'bg-green-900' : 'bg-gray-800'}
+              >
+                <div className="flex items-center border-b border-gray-700 hover:bg-gray-700/50">
+                  <div className="flex-1 p-2 min-w-[100px]">
+                    {new Date(log.date).toLocaleDateString()}
+                  </div>
+                  <div className="w-12 p-2 text-center">{log.first}</div>
+                  <div className="w-12 p-2 text-center">{log.second}</div>
+                  <div className="w-12 p-2 text-center">{log.third}</div>
+                  <div className="w-12 p-2 text-center">{log.fourth}</div>
+                  {isDeleting === log.id && (
+                    <div className="w-8 flex justify-center items-center">
+                      <Loader size={14} color='red'/>
+                    </div>
+                  )}
+                </div>
+              </SwipeToAction>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
 
-export default ExerciseTable; 
+export default ExerciseTable;
