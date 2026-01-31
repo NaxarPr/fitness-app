@@ -35,6 +35,8 @@ export function useTraining() {
       setStartTrainingTime(null);
       setElapsedTime('00:00:00');
       localStorage.removeItem('isTrainingStarted');
+      
+      localStorage.removeItem('trainingExercises');
     } catch(error){
       console.error('Error finishing training:', error);
     } finally {

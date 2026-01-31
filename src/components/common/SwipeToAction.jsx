@@ -48,25 +48,6 @@ const SwipeToAction = ({
     return e.clientY;
   };
 
-  const handleSwipeStart = useCallback((e) => {
-    if (isActioning || block) return;
-    
-    const clientX = getClientX(e);
-    const clientY = getClientY(e);
-    startXRef.current = clientX;
-    startYRef.current = clientY;
-    swipeActivatedRef.current = false;
-    setIsTouching(true);
-    
-    // Start long press timer
-    if (onLongPress) {
-      longPressTimerRef.current = setTimeout(() => {
-        onLongPress({ x: clientX, y: clientY });
-        handleSwipeEnd();
-      }, longPressDuration);
-    }
-  }, [isActioning, onLongPress, longPressDuration]);
-
   const handleSwipeMove = useCallback((e) => {
     if (!isTouching || isActioning) return;
     
@@ -136,6 +117,26 @@ const SwipeToAction = ({
       setTranslateX(0);
     }
   }, [isDragging, isActioning, translateX, threshold, onAction]);
+
+
+  const handleSwipeStart = useCallback((e) => {
+    if (isActioning || block) return;
+    
+    const clientX = getClientX(e);
+    const clientY = getClientY(e);
+    startXRef.current = clientX;
+    startYRef.current = clientY;
+    swipeActivatedRef.current = false;
+    setIsTouching(true);
+    
+    // Start long press timer
+    if (onLongPress) {
+      longPressTimerRef.current = setTimeout(() => {
+        onLongPress({ x: clientX, y: clientY });
+        handleSwipeEnd();
+      }, longPressDuration);
+    }
+  }, [isActioning, onLongPress, longPressDuration, handleSwipeEnd, block]);
 
   // Calculate if we're past the action threshold for visual feedback
   const containerWidth = containerRef.current?.offsetWidth || 0;
