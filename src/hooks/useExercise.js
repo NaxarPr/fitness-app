@@ -5,7 +5,7 @@ import { getExercisesByName } from '../utils/getExercisesByName';
 import EXERCISES from '../const/exercises';
 import INITIAL_VALUES from '../const/exercisesInitialValues';
 
-export function useExercise(name, user, setCompletedExercises) {
+export function useExercise(name, user, setCompletedExercises, setComment) {
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [exerciseName, setExerciseName] = useState(name);
@@ -51,10 +51,10 @@ export function useExercise(name, user, setCompletedExercises) {
     }
   };
 
-  const handleAdd = async () => {
+  const handleAdd = async (comment = null) => {
     setIsLoading(true);
     try {
-      await addExercise(name, values, user);      
+      await addExercise(name, values, user, comment);      
       setCompletedExercises(prev => [...prev, name]);
       fetchExerciseHistory();
       setIsReady(false);
@@ -89,6 +89,7 @@ export function useExercise(name, user, setCompletedExercises) {
         
       if (exerciseData && exerciseData.length > 0) {
         const lastExercise = exerciseData[exerciseData.length - 1];
+        setComment(lastExercise.comment || '');
         setOldValues([
           { key: 'first', placeholder: lastExercise.first },
           { key: 'second', placeholder: lastExercise.second },

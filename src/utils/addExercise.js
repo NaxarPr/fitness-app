@@ -1,6 +1,6 @@
 import { supabase } from "../supabase";
 
-export const addExercise = async (name, values, user) => {
+export const addExercise = async (name, values, user, comment = null) => {
   const today = new Date().toISOString().split('T')[0];
   
   const { data: existingExercise } = await supabase
@@ -19,7 +19,8 @@ export const addExercise = async (name, values, user) => {
         first: values.first,
         second: values.second,
         third: values.third,
-        fourth: values.fourth
+        fourth: values.fourth,
+        comment: comment
       })
       .eq('id', existingExercise.id);
   } else {
@@ -32,7 +33,8 @@ export const addExercise = async (name, values, user) => {
         third: values.third,
         fourth: values.fourth,
         user_id: user.id,
-        date: new Date().toISOString()
+        date: new Date().toISOString(),
+        comment: comment
       }]);
   }
 }

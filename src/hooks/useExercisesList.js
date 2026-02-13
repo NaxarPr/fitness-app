@@ -81,7 +81,13 @@ export function useExercisesList({ index, user }) {
     if (isTrainingActive() && userData) {
       return;
     }
-    setItems(exercises.map((exercise, idx) => ({ id: idx, name: exercise.name })));
+    setItems((prevItems) => {
+      const namesMatch =
+        prevItems.length === exercises.length &&
+        prevItems.every((item, i) => item.name === exercises[i].name);
+      if (namesMatch) return prevItems;
+      return exercises.map((exercise, idx) => ({ id: idx, name: exercise.name }));
+    });
   }, [exercises, username]);
 
   // Handle reordering items (drag and drop)

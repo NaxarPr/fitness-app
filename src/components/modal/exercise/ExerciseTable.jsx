@@ -76,6 +76,7 @@ function ExerciseTable({ onToggleChart, exerciseHistory, exerciseName, user, onD
                     </div>
                   )}
                 </div>
+                {log.comment && <div className={` h-6 leading-6 text-xs italic px-2 ${canDelete ? 'bg-green-600' : 'bg-gray-600'}`}>{log.comment}</div>}
               </SwipeToAction>
             );
           })}

@@ -10,6 +10,8 @@ import { useContextMenu } from '../../hooks/useContextMenu';
 
 function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDelete }) {
   const [showLogsModal, setShowLogsModal] = useState(false);
+  const [showCommentField, setShowCommentField] = useState(false);
+  const [comment, setComment] = useState(null);
   const { contextMenu, handleContextMenu, closeContextMenu } = useContextMenu();
 
   const {
@@ -26,7 +28,7 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDe
     handleAdd,
     switchExercise,
     fetchExerciseHistory
-  } = useExercise(name, user, setCompletedExercises);
+  } = useExercise(name, user, setCompletedExercises, setComment);
   
   const handleShowAlternatives = () => {
     setShowAlternatives(prev => !prev);
@@ -57,6 +59,11 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDe
       label: 'Delete exercise',
       onClick: () => onDelete(exerciseName),
       variant: 'danger',
+    },
+    {
+      icon: '💬',
+      label: showCommentField ? 'Hide comment' : comment ? 'Edit comment' : 'Add comment',
+      onClick: () => setShowCommentField(prev => !prev),
     },
   ];
 
@@ -128,13 +135,27 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDe
                   className='z-10'
                   disabled={!isReady} 
                   style={{ opacity: isReady ? 1 : 0 }} 
-                  onClick={handleAdd}
+                  onClick={() => {
+                    handleAdd(comment);
+                    setShowCommentField(false);
+                  }}
                 >
                   Add
                 </SystemButton> 
               )}
             </div>
           )}
+
+          {showCommentField ? (
+            <div className="flex items-center justify-between gap-2">
+              <Input className="text-xs h-6" placeholder="Comment" value={comment} onChange={(e) => setComment(e.target.value)} />
+            </div>
+          ) : comment ? (
+            <div className="text-xs text-gray-400 italic">
+              {comment}
+            </div>
+          ) : null}
+
         </div>
       </SwipeToAction>
 
@@ -155,6 +176,7 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDe
         onDelete={() => {
           fetchExerciseHistory();
           setCompletedExercises(prev => prev.filter(exercise => exercise !== exerciseName));
+          setComment(null);
         }}
       />
     </>

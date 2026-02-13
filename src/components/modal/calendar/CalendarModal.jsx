@@ -10,7 +10,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { getTrainingDates } from '../../../utils/getTrainingDates';
 import { getExercisesByDate } from '../../../utils/getExerciseByDate';
 import DayModal from './DayModal';
-
+import { Loader } from '../../common/Loader';
 
 const locales = {
   'en-US': require('date-fns/locale/en-US'),
@@ -45,6 +45,7 @@ const CalendarModal = ({ isOpen, onClose }) => {
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
   const [dayExercises, setDayExercises] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [loadingDate, setLoadingDate] = useState(null);
 
   useEffect(() => {
     const getTraining = async () => {
@@ -74,6 +75,27 @@ const CalendarModal = ({ isOpen, onClose }) => {
     setCurrentDate(addMonths(currentDate, 1));
   };
 
+
+  const handleDateClick = async (date) => {
+    const hasTraining = trainingDates?.some(
+      (trainingDate) =>
+        new Date(trainingDate).toDateString() === date.toDateString()
+    );
+
+    if (hasTraining) {
+      try {  
+        setLoadingDate(date.toDateString());
+        const exercisesByDate = await getExercisesByDate(date);
+        setDayExercises(exercisesByDate);
+        setSelectedDate(date);
+        setIsDayModalOpen(true);
+      } catch (error) {
+        console.error('Error fetching exercises by date:', error);
+      } finally {
+        setLoadingDate(null);
+      }
+    }
+  };
   return (
     <div onClick={onClose} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div onClick={e => e.stopPropagation()} className="bg-gray-900 p-6 rounded-lg shadow-xl w-[90%] max-w-4xl relative max-h-[80vh] overflow-y-auto">
@@ -107,31 +129,17 @@ const CalendarModal = ({ isOpen, onClose }) => {
             components={{
               month: {
                 dateHeader: ({ label, date }) => {
-                  const hasTraining = trainingDates?.some(
-                    (trainingDate) =>
-                      new Date(trainingDate).toDateString() === date.toDateString()
-                  );
-
                   const isToday = date.toDateString() === new Date().toDateString();
-
                   return (
                     <div
                       className='relative flex flex-col items-center justify-center h-full p-0 m-0'
                     >
                       <div
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          if (hasTraining) {
-                            const exercisesByDate = await getExercisesByDate(date);
-                            setDayExercises(exercisesByDate);
-                            setSelectedDate(date);
-                            setIsDayModalOpen(true);
-                          }
-                        }}
+                        onClick={async () => handleDateClick(date)}
                         className={`absolute top-0 left-0 w-full h-14 rounded cursor-pointer transition-transform flex items-center justify-center  m-[2px]
                           ${isToday ? 'text-green-600' : ''}`}
                       >
-                        {label}
+                        {loadingDate === date.toDateString() ? ( <Loader color='lime' className='text-white' />) : (label)}
                       </div>
                     </div>
                   );
