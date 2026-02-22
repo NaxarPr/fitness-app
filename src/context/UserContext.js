@@ -14,60 +14,28 @@ export function UserProvider({ children }) {
       try {
         const { data: usersData } = await supabase.from('users').select('*');
         const { data: weightData } = await supabase.from('weight_logs').select('*');
-        const { data: exercisesData, error: exercisesError } = await supabase
-          .from('exercises')
-          .select('id, exercise_name, user_id, day_number, muscle');
 
-        if (exercisesError) {
-          console.error('Error fetching exercises:', exercisesError);
-        }
-
-        const exercisesByUser = (exercisesData || []).reduce((acc, exercise) => {
-          if (!exercise.user_id) {
-            return acc;
+        const getProgramFromUser = (user) => {
+          const raw = user.program;
+          if (raw && typeof raw === 'object' && Object.keys(raw).length > 0) {
+            return raw;
           }
-
-          if (!acc[exercise.user_id]) {
-            acc[exercise.user_id] = [];
-          }
-
-          acc[exercise.user_id].push(exercise);
-          return acc;
-        }, {});
-
-        const buildProgram = (userExercises = []) => {
-          const baseProgram = { 1: [], 2: [], 3: [], 4: [] };
-
-          userExercises.forEach((exercise) => {
-            const dayKey = exercise.day_number?.toString();
-
-            if (!dayKey || !baseProgram[dayKey]) {
-              return;
-            }
-
-            baseProgram[dayKey].push({
-              id: exercise.id,
-              name: exercise.exercise_name,
-              muscle: exercise.muscle,
-            });
-          });
-
-          return baseProgram;
+          return { 1: [], 2: [], 3: [], 4: [] };
         };
-        
-        const usersWithWeight = await Promise.all(usersData.map(async user => {
-          const userWeight = weightData.filter(weight => weight.user_id === user.id).pop();
-          const userExercises = exercisesByUser[user.id] || [];
-          const lastDay = await getLastExercise(user, userExercises);
+
+        const usersWithWeight = await Promise.all(usersData.map(async (user) => {
+          const userWeight = weightData.filter((w) => w.user_id === user.id).pop();
+          const program = getProgramFromUser(user);
+          const lastDay = await getLastExercise(user, program);
 
           return {
             ...user,
             weight: userWeight ? userWeight.weight : null,
             last_day: lastDay,
-            program: buildProgram(userExercises),
+            program,
           };
         }));
-        
+
         setUsers(usersWithWeight);
       } catch (error) {
         console.error('Error fetching users:', error);

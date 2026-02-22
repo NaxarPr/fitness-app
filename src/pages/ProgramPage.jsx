@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useUsers } from '../context/UserContext';
-import { editDayForUser } from '../utils/editDayForUser';
-import { deleteDayForUser } from '../utils/deleteDayForUser';
+import { saveUserProgram } from '../utils/saveUserProgram';
 import { EditDayProgram } from '../components/program/EditDayProgram';
 import { DayProgramList } from '../components/program/DayProgramList';
 
@@ -24,27 +23,24 @@ function ProgramPage() {
             typeof exercise === "string" ? { name: exercise } : exercise
         ));
 
-        if (normalizedExercises.length === 0) {
-            await deleteDayForUser({ exercises: normalizedExercises, dayNumber, user });
-        } else {
-            await editDayForUser({ exercises: normalizedExercises, dayNumber, user });
-        }
+        const updatedProgram = {
+            ...user.program,
+            [dayNumber]: normalizedExercises,
+        };
 
         setUsers((prevUsers = []) =>
             prevUsers.map((mappedUser) => {
                 if (mappedUser.id !== user.id) {
                     return mappedUser;
                 }
-
                 return {
                     ...mappedUser,
-                    program: {
-                        ...mappedUser.program,
-                        [dayNumber]: normalizedExercises,
-                    },
+                    program: updatedProgram,
                 };
             })
         );
+
+        await saveUserProgram({ user, program: updatedProgram });
         setInitialState();
     };
 

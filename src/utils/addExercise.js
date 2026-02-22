@@ -24,6 +24,7 @@ export const addExercise = async (name, values, user, comment = null) => {
       })
       .eq('id', existingExercise.id);
   } else {
+    const dateWithTime = new Date().toISOString();
     await supabase
       .from('exercise_logs')
       .insert([{
@@ -33,7 +34,7 @@ export const addExercise = async (name, values, user, comment = null) => {
         third: values.third,
         fourth: values.fourth,
         user_id: user.id,
-        date: new Date().toISOString(),
+        date: dateWithTime,
         comment: comment
       }]);
   }

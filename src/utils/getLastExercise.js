@@ -1,7 +1,8 @@
-import { supabase } from "../supabase";
-import EXERCISES from "../const/exercises";
+import { supabase } from '../supabase';
 
-export const getLastExercise = async (user, userExercises) => {
+const getExerciseName = (ex) => (typeof ex === 'string' ? ex : (ex && ex.name));
+
+export const getLastExercise = async (user, program) => {
   const { data: lastExercise } = await supabase
     .from('exercise_logs')
     .select('*')
@@ -10,17 +11,17 @@ export const getLastExercise = async (user, userExercises) => {
     .limit(1)
     .single();
 
-  if (!lastExercise) return null;
+  if (!lastExercise || !lastExercise.exercise) return null;
 
-  const programIndex = EXERCISES.findIndex(program => 
-    Object.values(program).some(dayExercises => 
-      dayExercises.some(ex => ex.name === lastExercise.exercise)
-    )
-  );
+  const searchName = lastExercise.exercise;
 
-  if (programIndex === -1) return 1;
+  for (const [dayKey, exercises] of Object.entries(program || {})) {
+    if (!Array.isArray(exercises)) continue;
+    const hasMatch = exercises.some((ex) => getExerciseName(ex) === searchName);
+    if (hasMatch) {
+      return Number(dayKey) || 1;
+    }
+  }
 
-  const day = userExercises.filter(exercise => exercise.exercise_name === lastExercise.exercise).pop().day_number;
-  
-  return day;
+  return 1;
 }; 
