@@ -1,8 +1,12 @@
 import { supabase } from "../supabase";
-
-export const startTraining = async () => {
-  const now = new Date();
-  const localDate = now.toLocaleDateString('en-CA');
+export const startTraining = async (minusTenMinutes) => {
+  let trainingStartTime;
+  if (minusTenMinutes) {
+    trainingStartTime = new Date(Date.now() - 10 * 60 * 1000);
+  } else {
+    trainingStartTime = new Date();
+  }
+  const localDate = trainingStartTime.toLocaleDateString('en-CA');
 
   const { data: existingStart } = await supabase
     .from('training_time')
@@ -17,7 +21,7 @@ export const startTraining = async () => {
     await supabase
       .from('training_time')
       .insert({
-        created_at: now.toISOString(),
+        created_at: trainingStartTime.toISOString(),
         date: localDate
       })
   }

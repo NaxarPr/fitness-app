@@ -14,20 +14,28 @@ export function useTraining() {
     return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  const handleStartTraining = async () => {
+
+  const handleStartTraining = async (minusTenMinutes) => {
     setIsLoading(true);
-    try{
-      await startTraining();
-      const now = new Date().toISOString();
-      localStorage.setItem('isTrainingStarted', now);
-      setStartTrainingTime(now);
+    try {
+      await startTraining(minusTenMinutes);
+      let trainingStartTime;
+      if (minusTenMinutes) {
+        const date = new Date(Date.now() - 10 * 60 * 1000);
+        trainingStartTime = date.toISOString();
+      } else {
+        trainingStartTime = new Date().toISOString();
+      }
+      localStorage.setItem('isTrainingStarted', trainingStartTime);
+      setStartTrainingTime(trainingStartTime);
       setElapsedTime('00:00:00');
-    } catch(error){
+    } catch (error) {
       console.error('Error starting training:', error);
     } finally {
       setIsLoading(false);
     }
   }
+
   const handleFinishTraining = async () => {
     setIsLoading(true);
     try{

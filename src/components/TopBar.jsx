@@ -79,7 +79,7 @@ export function TopBar() {
             onClick={handleToggleTheme}
             className="relative flex h-7 w-14 shrink-0 items-center rounded-full border border-gray-600 bg-surface p-1 focus:outline-none focus:ring-2 focus:ring-main"
           >
-            {currentTheme != 'dark-blue' ? ( 
+            {currentTheme !== 'dark-blue' ? ( 
               <span className="absolute left-1.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-[#60a5fa]" aria-hidden />
             ) : ( 
               <span className="absolute right-1.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-[#1fa132]" aria-hidden />

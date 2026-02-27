@@ -18,7 +18,7 @@ export function StartStopTraining() {
         ) : (
           <button 
             className='bg-green-500 text-white px-2 rounded' 
-            onClick={handleStartTraining}
+            onClick={() => handleStartTraining(false)}
           >
             Start
           </button>

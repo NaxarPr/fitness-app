@@ -4,8 +4,12 @@ import { addExercise } from '../utils/addExercise';
 import { getExercisesByName } from '../utils/getExercisesByName';
 import EXERCISES from '../const/exercises';
 import INITIAL_VALUES from '../const/exercisesInitialValues';
+import { useTraining } from './useTraining';
 
 export function useExercise(name, user, setCompletedExercises, setComment) {
+
+  const { startTrainingTime, handleStartTraining } = useTraining();
+
   const [isReady, setIsReady] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [exerciseName, setExerciseName] = useState(name);
@@ -53,6 +57,9 @@ export function useExercise(name, user, setCompletedExercises, setComment) {
 
   const handleAdd = async (comment = null) => {
     setIsLoading(true);
+    if (!startTrainingTime) {
+      await handleStartTraining(true);
+    }
     try {
       await addExercise(name, values, user, comment);      
       setCompletedExercises(prev => [...prev, name]);
