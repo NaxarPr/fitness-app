@@ -9,9 +9,30 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg-color);
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+@layer base {
+  /* Default: Dark Blue */
+  :root {
+    --brand-color: #60a5fa;
+    --bg-color: #111827; /* gray-900 */
+  }
+
+  /* Dark Blue Theme */
+  [data-theme='dark-blue'] {
+    --brand-color: #60a5fa;
+    --bg-color: #111827; /* gray-900 */
+  }
+
+  /* Dark Green Theme */
+  [data-theme='dark-green'] {
+    --brand-color: #34d399; /* emerald-400 */
+    --bg-color: #1a1a1a; /* near-black */
+  }
 }

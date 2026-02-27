@@ -24,7 +24,7 @@ const WeightModal = ({ isOpen, onClose, weightHistory }) => {
   
   return (
     <div onClick={onClose} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div onClick={e => e.stopPropagation()} className="bg-gray-900 p-6 rounded-lg shadow-xl w-[90%] max-w-4xl relative max-h-[80vh] overflow-y-auto" >
+      <div onClick={e => e.stopPropagation()} className="bg-main p-6 rounded-lg shadow-xl w-[90%] max-w-4xl relative max-h-[80vh] overflow-y-auto" >
         {view === "table" ? (
           <WeightTable
             weightHistory={weightHistory}

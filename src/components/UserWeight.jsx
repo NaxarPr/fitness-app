@@ -4,8 +4,11 @@ import WeightModal from "./modal/weight/WeightModal";
 import { getWeightHistory } from "../utils/getWeightHistory";
 import Input from "./common/Input";
 import SystemButton from "./common/SystemButton";
+import { useUsers } from "../context/UserContext";
 
 function UserWeight({ user }) {
+  const { hideWeights } = useUsers();
+
   const [editWeight, setEditWeight] = useState(false);
   const [weight, setWeight] = useState(null);
   const [weightHistory, setWeightHistory] = useState([]);
@@ -67,7 +70,7 @@ function UserWeight({ user }) {
               </SystemButton>
             </div>
           </div>
-        ) : (
+        ) : !hideWeights ? (
           <div className="flex items-center justify-center gap-2 h-8">
             <p
               className="text-center text-gray-400 select-none"
@@ -84,7 +87,7 @@ function UserWeight({ user }) {
               </button>
             )}
           </div>
-        )}
+        ) : null}
       </div>
 
       <WeightModal

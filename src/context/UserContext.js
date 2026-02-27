@@ -8,6 +8,18 @@ export function UserProvider({ children }) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [column, setColumn] = useState('flex-col');
+  const [hideWeights, setHideWeights] = useState(() => {
+    const saved = localStorage.getItem('user-hide-weights');
+    return saved === 'true';
+  });
+
+  useEffect(() => {
+    localStorage.setItem('user-hide-weights', String(hideWeights));
+  }, [hideWeights]);
+
+  const handleHideWeights = () => {
+    setHideWeights((prev) => !prev);
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -51,7 +63,9 @@ export function UserProvider({ children }) {
     loading,
     column,
     setColumn,
-    setUsers
+    setUsers,
+    handleHideWeights,
+    hideWeights
   };
 
   return (
