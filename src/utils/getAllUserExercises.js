@@ -1,23 +1,41 @@
 import { supabase } from "../supabase";
 
 export const getAllUserExercises = async () => {
-  const { data, error } = await supabase
+  const { data: logsData, error: logsError } = await supabase
     .from("exercise_logs")
     .select("exercise")
     .order("date", { ascending: false });
 
-  if (error) {
-    console.error("Error fetching all user exercises:", error);
+  if (logsError) {
+    console.error("Error fetching exercise logs:", logsError);
     return [];
   }
 
-  if (!data) {
+  if (!logsData || logsData.length === 0) {
     return [];
   }
 
-  const allUserExercises = data.map((item) => item.exercise);
-  const uniqueUserExercises = Array.from(new Set(allUserExercises));
+  const uniqueNames = Array.from(new Set(logsData.map((item) => item.exercise)));
 
-  return uniqueUserExercises;
+  const { data: exercisesData, error: exercisesError } = await supabase
+    .from("exercises")
+    .select("exercise_name, muscle");
+
+  if (exercisesError) {
+    console.error("Error fetching exercises:", exercisesError);
+    return uniqueNames.map((name) => ({ name, muscle: "" }));
+  }
+
+  const muscleByExerciseName = (exercisesData || []).reduce((acc, row) => {
+    if (!acc[row.exercise_name]) {
+      acc[row.exercise_name] = row.muscle || "";
+    }
+    return acc;
+  }, {});
+
+  return uniqueNames.map((name) => ({
+    name,
+    muscle: muscleByExerciseName[name] ?? "",
+  }));
 };
 
