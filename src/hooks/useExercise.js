@@ -2,8 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabase';
 import { addExercise } from '../utils/addExercise';
 import { getExercisesByName } from '../utils/getExercisesByName';
-import EXERCISES from '../const/exercises';
-import INITIAL_VALUES from '../const/exercisesInitialValues';
+import { EXERCISES, INITIAL_VALUES } from '../const/exercises';
 import { useTraining } from './useTraining';
 
 export function useExercise(name, user, setCompletedExercises, setComment) {

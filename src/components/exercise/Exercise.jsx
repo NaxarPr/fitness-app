@@ -55,15 +55,15 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDe
       onClick: () => setShowLogsModal(true),
     }] : []),
     {
+      icon: '💬',
+      label: showCommentField ? 'Hide comment' : comment ? 'Edit comment' : 'Add comment',
+      onClick: () => setShowCommentField(prev => !prev),
+    },
+    {
       icon: '🗑️',
       label: 'Delete exercise',
       onClick: () => onDelete(exerciseName),
       variant: 'danger',
-    },
-    {
-      icon: '💬',
-      label: showCommentField ? 'Hide comment' : comment ? 'Edit comment' : 'Add comment',
-      onClick: () => setShowCommentField(prev => !prev),
     },
   ];
 
@@ -153,6 +153,9 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDe
           ) : comment ? (
             <div className="text-xs text-gray-400 italic">
               {comment}
+              <button className="ml-1" onClick={() => setComment(null)}>
+                ❌
+              </button>
             </div>
           ) : null}
 
