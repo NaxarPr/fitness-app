@@ -2,11 +2,11 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabase';
 import { addExercise } from '../utils/addExercise';
 import { getExercisesByName } from '../utils/getExercisesByName';
-import { EXERCISES, INITIAL_VALUES } from '../const/exercises';
+import { DEFAULT_EXERCISE_VALUES, EXERCISES, INITIAL_VALUES } from '../const/exercises';
 import { useTraining } from './useTraining';
 
-export function useExercise(name, user, setCompletedExercises, setComment) {
 
+export function useExercise(name, user, setCompletedExercises, setComment, savedValues = null, onValuesChange = null) {
   const { startTrainingTime, handleStartTraining } = useTraining();
 
   const [isReady, setIsReady] = useState(false);
@@ -16,12 +16,10 @@ export function useExercise(name, user, setCompletedExercises, setComment) {
   const [exerciseHistory, setExerciseHistory] = useState([]);
   const [showAlternatives, setShowAlternatives] = useState(false);
   const [alternatives, setAlternatives] = useState([]);
-  const [values, setValues] = useState({
-    first: '',
-    second: '',
-    third: '',
-    fourth: ''
-  });
+  const [values, setValues] = useState(() => ({
+    ...DEFAULT_EXERCISE_VALUES,
+    ...(savedValues && typeof savedValues === 'object' ? savedValues : {})
+  }));
 
   const findAlternatives = useCallback((exerciseName) => {
     let foundAlternatives = [];
@@ -48,9 +46,21 @@ export function useExercise(name, user, setCompletedExercises, setComment) {
     setAlternatives(foundAlternatives);
   }, [name, findAlternatives]);
 
+  useEffect(() => {
+    if (savedValues != null && typeof savedValues === 'object') {
+      setValues((prev) => ({ ...DEFAULT_EXERCISE_VALUES, ...prev, ...savedValues }));
+    }
+  }, [name, savedValues]);
+
   const handleChange = (field, value) => {
     if (/^\d{0,2}$/.test(value)) {
-      setValues(prev => ({ ...prev, [field]: value }));
+      setValues((prev) => {
+        const next = { ...prev, [field]: value };
+        if (typeof onValuesChange === 'function') {
+          onValuesChange(name, next);
+        }
+        return next;
+      });
     }
   };
 

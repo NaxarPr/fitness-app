@@ -17,7 +17,8 @@ export default function ExerciseContainer({ index, user }) {
     setCompletedExercises,
     days,
     handleDeleteExercise,
-  } = useExercisesList({ index, user });
+    handleExerciseValuesChange,
+  } = useExercisesList({ user });
   
   return (
     <div className="container mx-auto py-4">
@@ -42,6 +43,8 @@ export default function ExerciseContainer({ index, user }) {
                 setCompletedExercises={setCompletedExercises}
                 active={active}
                 onDelete={handleDeleteExercise}
+                savedValues={item.values}
+                onValuesChange={handleExerciseValuesChange}
               />
             </SortableList.Item>
           )}

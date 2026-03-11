@@ -87,3 +87,10 @@ export const INITIAL_VALUES = [
   { key: 'third', placeholder: '3rd' },
   { key: 'fourth', placeholder: '4th' }
 ];
+
+export const DEFAULT_EXERCISE_VALUES = {
+  first: '',
+  second: '',
+  third: '',
+  fourth: ''
+};

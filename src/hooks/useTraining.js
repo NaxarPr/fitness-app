@@ -48,8 +48,7 @@ export function useTraining() {
       setStartTrainingTime(null);
       setElapsedTime('00:00:00');
       localStorage.removeItem('isTrainingStarted');
-      
-      localStorage.removeItem('trainingExercises');
+      localStorage.removeItem('userExercisesByDay');
     } catch(error){
       console.error('Error finishing training:', error);
     } finally {
@@ -69,7 +68,7 @@ export function useTraining() {
       
       setStartTrainingTime(isTrainingStarted);
     }
-  }, []);
+  }, [setStartTrainingTime]);
 
   useEffect(() => {
     if (!startTrainingTime) {

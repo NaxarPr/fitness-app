@@ -1,143 +1,115 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "../supabase";
 
-const TRAINING_EXERCISES_KEY = 'trainingExercises';
+const USER_EXERCISES_BY_DAY_KEY = 'userExercisesByDay';
 
-const isTrainingActive = () => {
-  return localStorage.getItem('isTrainingStarted') !== null;
-};
-
-const getTrainingData = () => {
+const getPersistentExercisesData = () => {
   try {
-    return JSON.parse(localStorage.getItem(TRAINING_EXERCISES_KEY) || '{}');
-  } catch {
+    return JSON.parse(localStorage.getItem(USER_EXERCISES_BY_DAY_KEY) || '{}');
+  } catch (e) {
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[useExercisesList] Failed to parse persistent exercises:', e);
+    }
     return {};
   }
 };
 
-const saveTrainingData = (data) => {
-  localStorage.setItem(TRAINING_EXERCISES_KEY, JSON.stringify(data));
+const savePersistentExercisesData = (data) => {
+  localStorage.setItem(USER_EXERCISES_BY_DAY_KEY, JSON.stringify(data));
 };
 
-export function useExercisesList({ index, user }) {
+const getPersistentExercisesForUserAndDay = (username, day) => {
+  const all = getPersistentExercisesData();
+  const userData = all[username];
+  return userData?.[day] ?? null;
+};
+
+export function useExercisesList({ user }) {
   const [selectedDay, setSelectedDay] = useState(() => {
     const savedDays = JSON.parse(localStorage.getItem('selectedDays') || '{}');
     return savedDays[user.username] || "1";
   });
-  const [exercises, setExercises] = useState([]);
   const [items, setItems] = useState([]);
   const [completedExercises, setCompletedExercises] = useState([]);
 
   const days = Object.keys(user.program);
   const username = user.username;
 
-  // Save user's exercises to localStorage
-  const saveUserToLocalStorage = useCallback((exercisesToSave, itemsToSave, day) => {
-    if (isTrainingActive()) {
-      const allData = getTrainingData();
-      allData[username] = {
-        exercises: exercisesToSave,
-        items: itemsToSave,
-        selectedDay: day,
-      };
-      saveTrainingData(allData);
-    }
+  const exercises = useMemo(
+    () => items.map((i) => ({ name: i.name })),
+    [items]
+  );
+
+  // Save only items (with optional values per exercise) per user per day
+  const saveUserToLocalStorage = useCallback((itemsToSave, day) => {
+    const persistent = getPersistentExercisesData();
+    if (!persistent[username]) persistent[username] = {};
+    persistent[username][day] = { items: itemsToSave };
+    savePersistentExercisesData(persistent);
   }, [username]);
 
-  // Clear user's exercises from localStorage
-  const clearUserFromLocalStorage = useCallback(() => {
-    const allData = getTrainingData();
-    delete allData[username];
-    saveTrainingData(allData);
-  }, [username]);
-
-  // Load exercises - from localStorage if training is active, otherwise from program
+  // Load items: persistent per user/day first, then program
   useEffect(() => {
     const savedDays = JSON.parse(localStorage.getItem('selectedDays') || '{}');
     savedDays[user.username] = selectedDay;
     localStorage.setItem('selectedDays', JSON.stringify(savedDays));
 
-    // Check if training is active and we have saved exercises for this user
-    if (isTrainingActive()) {
-      const allData = getTrainingData();
-      const userData = allData[username];
-      if (userData && userData.selectedDay === selectedDay) {
-        setExercises(userData.exercises || []);
-        setItems(userData.items || []);
-        return;
-      }
-    }
-
-    // Fall back to program exercises
-    const programExercises = selectedDay ? user.program[selectedDay] : [];
-    setExercises(programExercises);
-  }, [selectedDay, user.username, index, user.program, username]);
-
-  // Sync items from exercises when exercises change from program (not during training)
-  useEffect(() => {
-    // Skip if training is active and we already have saved data
-    const allData = getTrainingData();
-    const userData = allData[username];
-    if (isTrainingActive() && userData) {
+    const persistent = getPersistentExercisesForUserAndDay(username, selectedDay);
+    if (persistent?.items?.length > 0) {
+      setItems(persistent.items);
       return;
     }
-    setItems((prevItems) => {
-      const namesMatch =
-        prevItems.length === exercises.length &&
-        prevItems.every((item, i) => item.name === exercises[i].name);
-      if (namesMatch) return prevItems;
-      return exercises.map((exercise, idx) => ({ id: idx, name: exercise.name }));
+
+    const programExercises = selectedDay ? user.program[selectedDay] : [];
+    setItems(programExercises.map((ex, idx) => ({ id: idx, name: ex.name })));
+  }, [selectedDay, user.username, user.program, username]);
+
+  // Update a single exercise's repeat/sets input values and persist
+  const handleExerciseValuesChange = useCallback((exerciseName, values) => {
+    setItems((prev) => {
+      const next = prev.map((item) =>
+        item.name === exerciseName ? { ...item, values } : item
+      );
+      saveUserToLocalStorage(next, selectedDay);
+      return next;
     });
-  }, [exercises, username]);
+  }, [saveUserToLocalStorage, selectedDay]);
 
   // Handle reordering items (drag and drop)
   const handleSetItems = useCallback((newItemsOrUpdater) => {
     setItems((prevItems) => {
-      const newItems = typeof newItemsOrUpdater === 'function' 
-        ? newItemsOrUpdater(prevItems) 
+      const newItems = typeof newItemsOrUpdater === 'function'
+        ? newItemsOrUpdater(prevItems)
         : newItemsOrUpdater;
-      
-      // Also update exercises to match the new order
-      const newExercises = newItems.map(item => ({ name: item.name }));
-      setExercises(newExercises);
-      
-      // Save to localStorage if training is active
-      saveUserToLocalStorage(newExercises, newItems, selectedDay);
-      
+      saveUserToLocalStorage(newItems, selectedDay);
       return newItems;
     });
   }, [saveUserToLocalStorage, selectedDay]);
 
-  // Handle adding/modifying exercises
+  // Handle adding/modifying exercises (preserve existing item values)
   const handleSetExercises = useCallback((newExercisesOrUpdater) => {
-    setExercises((prevExercises) => {
+    setItems((prevItems) => {
       const newExercises = typeof newExercisesOrUpdater === 'function'
-        ? newExercisesOrUpdater(prevExercises)
+        ? newExercisesOrUpdater(prevItems.map((i) => ({ name: i.name })))
         : newExercisesOrUpdater;
-      
-      // Update items to match
-      const newItems = newExercises.map((exercise, idx) => ({ id: idx, name: exercise.name }));
-      setItems(newItems);
-      
-      // Save to localStorage if training is active
-      saveUserToLocalStorage(newExercises, newItems, selectedDay);
-      
-      return newExercises;
+      const newItems = newExercises.map((exercise, idx) => {
+        const existing = prevItems.find((i) => i.name === exercise.name);
+        return {
+          id: idx,
+          name: exercise.name,
+          ...(existing?.values && { values: existing.values }),
+        };
+      });
+      saveUserToLocalStorage(newItems, selectedDay);
+      return newItems;
     });
   }, [saveUserToLocalStorage, selectedDay]);
 
   // Handle deleting an exercise
   const handleDeleteExercise = useCallback((exerciseName) => {
-    setItems(prev => {
-      const newItems = prev.filter(item => item.name !== exerciseName);
-      setExercises(prevEx => {
-        const newExercises = prevEx.filter(exercise => exercise.name !== exerciseName);
-        
-        // Save to localStorage if training is active
-        saveUserToLocalStorage(newExercises, newItems, selectedDay);
-        
-        return newExercises;
-      });
+    setItems((prev) => {
+      const newItems = prev.filter((item) => item.name !== exerciseName);
+      saveUserToLocalStorage(newItems, selectedDay);
       return newItems;
     });
   }, [saveUserToLocalStorage, selectedDay]);
@@ -145,21 +117,23 @@ export function useExercisesList({ index, user }) {
   useEffect(() => {
     const fetchCompletedExercises = async () => {
       const today = new Date().toISOString().split("T")[0];
-
-      const { data } = await supabase
-        .from("exercise_logs")
-        .select("exercise")
-        .eq("user_id", user.id)
-        .gte("date", today)
-        .lt(
-          "date",
-          new Date(
-            new Date(today).getTime() + 24 * 60 * 60 * 1000
-          ).toISOString()
-        );
-
-      if (data) {
-        setCompletedExercises(data.map((item) => item.exercise));
+      try {        
+        const { data } = await supabase
+          .from("exercise_logs")
+          .select("exercise")
+          .eq("user_id", user.id)
+          .gte("date", today)
+          .lt(
+            "date",
+            new Date(
+              new Date(today).getTime() + 24 * 60 * 60 * 1000
+            ).toISOString()
+          );
+        if (data) {
+          setCompletedExercises(data.map((item) => item.exercise));
+        }
+      } catch (error) {
+        console.error("Error fetching completed exercises:", error);
       }
     };
 
@@ -177,6 +151,6 @@ export function useExercisesList({ index, user }) {
     setCompletedExercises,
     days,
     handleDeleteExercise,
-    clearUserFromLocalStorage,
+    handleExerciseValuesChange,
   };
 }

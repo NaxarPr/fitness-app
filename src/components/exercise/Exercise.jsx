@@ -8,7 +8,7 @@ import ContextMenu from '../common/ContextMenu';
 import SwipeToAction from '../common/SwipeToAction';
 import { useContextMenu } from '../../hooks/useContextMenu';
 
-function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDelete }) {
+function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDelete, savedValues, onValuesChange }) {
   const [showLogsModal, setShowLogsModal] = useState(false);
   const [showCommentField, setShowCommentField] = useState(false);
   const [comment, setComment] = useState(null);
@@ -28,7 +28,7 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDe
     handleAdd,
     switchExercise,
     fetchExerciseHistory
-  } = useExercise(name, user, setCompletedExercises, setComment);
+  } = useExercise(name, user, setCompletedExercises, setComment, savedValues, onValuesChange);
   
   const handleShowAlternatives = () => {
     setShowAlternatives(prev => !prev);
@@ -74,15 +74,10 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDe
         onLongPress={handleLongPress}
       >
         <div 
-          className="p-2 flex flex-col gap-2 w-full select-none"
+          className={`p-2 flex flex-col gap-2 w-full select-none ${isCompleted ? 'bg-green-700' : ''}`}
           onContextMenu={handleContextMenu}
         >
-          <div className='flex justify-between items-center gap-2'>
-            <div className='flex justify-center items-center gap-2'>
-              {isCompleted && <span>✅</span>}
-              <p className='font-medium text-sm sm:text-base'>{exerciseName}{alternatives.length ? '*' : null}</p>
-            </div>
-          </div>
+          <p className='font-medium text-sm sm:text-base'>{exerciseName}{alternatives.length ? '*' : null}</p>
           
           {showAlternatives && alternatives.length > 0 && (
             <div className='flex items-center justify-between gap-2'>
@@ -119,7 +114,7 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDe
                   placeholder={field.placeholder}
                   pattern='[0-9]*'
                   type='number'
-                  className="!w-12 sm:!w-16 h-8"
+                  className={`!w-12 sm:!w-16 h-8 ${isCompleted ? 'bg-green-700' : ''}`}
                   value={values[field.key]}
                   onChange={(e) => handleChange(field.key, e.target.value)}
                   onDoubleClick={() => handleChange(field.key, field.placeholder)}
