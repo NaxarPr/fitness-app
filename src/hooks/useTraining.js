@@ -1,10 +1,15 @@
 import { useEffect, useState} from 'react';
 import { startTraining } from '../utils/startTraining';
 import { finishTraining } from '../utils/finishTraining';
+import { useAppStore } from '../store/appStore';
+import { useShallow } from 'zustand/shallow';
 
 export function useTraining() {
   const [isLoading, setIsLoading] = useState(false);
-  const [startTrainingTime, setStartTrainingTime] = useState(null);
+  const { startTrainingTime, setStartTrainingTime } = useAppStore(useShallow((state) => ({
+    startTrainingTime: state.startTrainingTime,
+    setStartTrainingTime: state.setStartTrainingTime,
+  })));
   const [elapsedTime, setElapsedTime] = useState('00:00:00');
 
   const formatTime = (seconds) => {

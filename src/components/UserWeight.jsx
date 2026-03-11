@@ -4,12 +4,13 @@ import WeightModal from "./modal/weight/WeightModal";
 import { getWeightHistory } from "../utils/getWeightHistory";
 import Input from "./common/Input";
 import SystemButton from "./common/SystemButton";
-import { useUsers } from "../context/UserContext";
+import { useAppStore } from "../store/appStore";
 import { PARAM_FIELDS, INITIAL_PARAMS } from "../const/params";
+import { useShallow } from "zustand/shallow";
 
 
 function UserWeight({ user }) {
-  const { hideWeights } = useUsers();
+  const hideWeights = useAppStore(useShallow((state) => state.hideWeights));
 
   const [editWeight, setEditWeight] = useState(false);
   const [params, setParams] = useState(INITIAL_PARAMS);

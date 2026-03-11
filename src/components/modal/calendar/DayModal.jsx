@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useUsers } from '../../../context/UserContext';
+import { useAppStore } from '../../../store/appStore';
 import { getTrainingData } from '../../../utils/getTrainingData';
+import { useShallow } from 'zustand/shallow';
 
 function DayModal({ isOpen, onClose, dayExercises, date }) {
-  const { users } = useUsers();
+  const users = useAppStore(useShallow((state) => state.users));
   const [trainingInfo, setTrainingInfo] = useState(null);
   
   const groupedExercises = useMemo(() => {

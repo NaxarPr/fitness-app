@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useUsers } from '../context/UserContext';
+import { useAppStore } from '../store/appStore';
 import { saveUserProgram } from '../utils/saveUserProgram';
 import { EditDayProgram } from '../components/program/EditDayProgram';
 import { DayProgramList } from '../components/program/DayProgramList';
+import { useShallow } from 'zustand/shallow';
 
 function ProgramPage() {
-    const { users, setUsers } = useUsers();
+    const { users, setUsers } = useAppStore(useShallow((state) => ({
+      users: state.users,
+      setUsers: state.setUsers,
+    })));
+    
     const [EditDayUser, setEditDayUser] = useState(false);
     const [dayNumber, setDayNumber] = useState(1);
     const [exercises, setExercises] = useState([]);

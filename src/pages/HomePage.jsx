@@ -1,10 +1,16 @@
-import { useUsers } from '../context/UserContext';
+import { useAppStore } from '../store/appStore';
 import UserCard from '../components/UserCard';
 import { Loader } from '../components/common/Loader';
 import { TopBar } from '../components/TopBar';
+import { useShallow } from 'zustand/shallow';
 
 function HomePage() {
-  const { users, loading, column } = useUsers();
+
+  const { users, loading, column } = useAppStore(useShallow((state) => ({
+    users: state.users,
+    loading: state.loading,
+    column: state.column,
+  })));
 
   if (loading) {
     return (

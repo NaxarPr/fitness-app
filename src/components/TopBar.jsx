@@ -1,16 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { useUsers } from '../context/UserContext';
+import { useAppStore } from '../store/appStore';
 import { useNavigate } from 'react-router-dom';
 import { StartStopTraining } from './StartStopTraining';
 import CalendarModal from './modal/calendar/CalendarModal';
 import ContextMenu from '../components/common/ContextMenu';
 import { useContextMenu } from '../hooks/useContextMenu';
+import { useShallow } from 'zustand/shallow';
 
 const THEMES = ['dark-blue', 'dark-green'];
 
 export function TopBar() {
   const navigate = useNavigate();
-  const { column, setColumn, handleHideWeights, hideWeights } = useUsers();
+  const { column, setColumn, handleHideWeights, hideWeights } = useAppStore(
+    useShallow((state) => ({
+      column: state.column,
+      setColumn: state.setColumn,
+      handleHideWeights: state.handleHideWeights,
+      hideWeights: state.hideWeights,
+    }))
+  );
   const { contextMenu, handleContextMenu, closeContextMenu } = useContextMenu();
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
