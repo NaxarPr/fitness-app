@@ -1,15 +1,23 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAppStore } from '../../../store/appStore';
 import { getTrainingData } from '../../../utils/getTrainingData';
+import { deleteTrainingTime } from '../../../utils/deleteTrainingTime';
 import { useShallow } from 'zustand/shallow';
+import SwipeToAction from '../../common/SwipeToAction';
 
 function DayModal({ isOpen, onClose, dayExercises, date }) {
   const users = useAppStore(useShallow((state) => state.users));
   const [trainingInfo, setTrainingInfo] = useState(null);
-  
+
   const groupedExercises = useMemo(() => {
     if (!Array.isArray(dayExercises)) return {};
-    return dayExercises.reduce((acc, ex) => {
+    const sortedExercises = [...dayExercises].sort((a, b) => {
+      const dateA = a.date ? new Date(a.date).getTime() : 0;
+      const dateB = b.date ? new Date(b.date).getTime() : 0;
+      return dateA - dateB;
+    });
+
+    return sortedExercises.reduce((acc, ex) => {
       const userId = ex.user_id || 'unknown';
       if (!acc[userId]) acc[userId] = [];
       acc[userId].push(ex);
@@ -64,6 +72,19 @@ function DayModal({ isOpen, onClose, dayExercises, date }) {
   const hasTrainingInfo =
     trainingInfo && typeof trainingInfo === 'object' && Object.keys(trainingInfo).length > 0;
 
+  const handleDeleteTraining = async () => {
+    if (!trainingInfo?.id) return;
+    try {
+      const { success } = await deleteTrainingTime(trainingInfo.id);
+      if (success) {
+        setTrainingInfo(null);
+        onClose();
+      }
+    } catch (error) {
+      console.error('Error deleting training time:', error);
+    }
+  };
+
   return (
     <div
       onClick={onClose}
@@ -74,7 +95,12 @@ function DayModal({ isOpen, onClose, dayExercises, date }) {
         className="bg-gray-800 rounded-lg p-6 w-[90%] max-w-2xl max-h-[80vh] overflow-y-auto"
       >
         {hasTrainingInfo ? (
-          <div className="flex flex-col gap-1 mb-4 rounded-lg bg-gray-700 p-4 text-white">
+          <SwipeToAction
+            onAction={handleDeleteTraining}
+            confirmTitle="Delete this training?"
+            confirmMessage="This will remove the training record for this day. This action cannot be undone."
+          >
+          <div className="flex flex-col gap-1 rounded-lg bg-gray-700 p-4 text-white">
             <p className="text-sm">Start: {formatTime(trainingInfo.created_at)}</p>
             <p className="text-sm">
               Finish: {trainingInfo.finished_at ? formatTime(trainingInfo.finished_at) : 'In progress'}
@@ -83,6 +109,7 @@ function DayModal({ isOpen, onClose, dayExercises, date }) {
               Duration: {trainingInfo.duration}
             </p>
           </div>
+          </SwipeToAction>
         ) : null}
 
         {Object.keys(groupedExercises).length === 0 ? (

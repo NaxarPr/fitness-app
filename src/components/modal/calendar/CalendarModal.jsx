@@ -77,12 +77,7 @@ const CalendarModal = ({ isOpen, onClose }) => {
 
 
   const handleDateClick = async (date) => {
-    const hasTraining = trainingDates?.some(
-      (trainingDate) =>
-        new Date(trainingDate).toDateString() === date.toDateString()
-    );
 
-    if (hasTraining) {
       try {  
         setLoadingDate(date.toDateString());
         const exercisesByDate = await getExercisesByDate(date);
@@ -94,7 +89,6 @@ const CalendarModal = ({ isOpen, onClose }) => {
       } finally {
         setLoadingDate(null);
       }
-    }
   };
   return (
     <div onClick={onClose} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">

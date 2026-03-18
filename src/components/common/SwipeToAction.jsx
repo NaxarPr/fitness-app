@@ -1,4 +1,5 @@
 import React, { useState, useRef, useCallback, useMemo } from 'react';
+import ConfirmModal from './ConfirmModal';
 
 const hexToRgb = (hex) => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -20,11 +21,14 @@ const SwipeToAction = ({
   longPressDuration = 2000,
   actionColor = '#DC2626', // red-600
   backgroundColor = 'bg-main',
+  confirmTitle = 'Are you sure?',
+  confirmMessage = '',
 }) => {
   const [translateX, setTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [isActioning, setIsActioning] = useState(false);
   const [isTouching, setIsTouching] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   
   const containerRef = useRef(null);
   const startXRef = useRef(0);
@@ -105,18 +109,26 @@ const SwipeToAction = ({
     const actionThreshold = containerWidth * threshold;
     
     if (Math.abs(translateX) > actionThreshold) {
-      // Animate out and trigger action
-      setIsActioning(true);
-      setTranslateX(-containerWidth);
-      
-      setTimeout(() => {
-        onAction?.();
-      }, 300);
+      setShowConfirmModal(true);
     } else {
-      // Snap back
       setTranslateX(0);
     }
   }, [isDragging, isActioning, translateX, threshold, onAction]);
+
+  const handleConfirmAction = useCallback(() => {
+    setShowConfirmModal(false);
+    const width = containerRef.current?.offsetWidth || 0;
+    setIsActioning(true);
+    setTranslateX(-width);
+    setTimeout(() => {
+      onAction?.();
+    }, 300);
+  }, [onAction]);
+
+  const handleCancelConfirm = useCallback(() => {
+    setTranslateX(0);
+    setShowConfirmModal(false);
+  }, []);
 
 
   const handleSwipeStart = useCallback((e) => {
@@ -182,6 +194,14 @@ const SwipeToAction = ({
       >
         {children}
       </div>
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={handleCancelConfirm}
+        onConfirm={handleConfirmAction}
+        title={confirmTitle}
+        message={confirmMessage}
+      />
     </div>
   );
 };
