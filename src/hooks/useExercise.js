@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../supabase';
 import { addExercise } from '../utils/addExercise';
+import { addExercise as addExerciseToCatalog } from '../utils/getAllExercises';
+import { useAppStore } from '../store/appStore';
 import { getExercisesByName } from '../utils/getExercisesByName';
 import { DEFAULT_EXERCISE_VALUES, EXERCISES, INITIAL_VALUES } from '../const/exercises';
 import { useTraining } from './useTraining';
@@ -70,8 +72,18 @@ export function useExercise(name, user, setCompletedExercises, setComment, saved
       await handleStartTraining(true);
     }
     try {
-      await addExercise(name, values, user, comment);      
-      setCompletedExercises(prev => [...prev, name]);
+      const existingExercises = useAppStore.getState().exercises;
+      const alreadyInCatalog = existingExercises.some(
+        (ex) => (ex?.exercise_name || '').trim().toLowerCase() === name.trim().toLowerCase()
+      );
+      if (!alreadyInCatalog) {
+        const inserted = await addExerciseToCatalog({ exercise_name: name.trim(), muscle: null });
+        if (inserted?.[0]) {
+          useAppStore.getState().addExerciseToStore(inserted[0]);
+        }
+      }
+      await addExercise(name, values, user, comment);
+      setCompletedExercises((prev) => [...prev, name]);
       fetchExerciseHistory();
       setIsReady(false);
     } catch (error) {

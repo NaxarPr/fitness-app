@@ -1,15 +1,32 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAppStore } from '../../../store/appStore';
+import { useTrainingStore } from '../../../store/trainingStore';
 import { getTrainingData } from '../../../utils/getTrainingData';
 import { deleteTrainingTime } from '../../../utils/deleteTrainingTime';
 import { useShallow } from 'zustand/shallow';
 import SwipeToAction from '../../common/SwipeToAction';
 
-function DayModal({ isOpen, onClose, dayExercises, date }) {
+function DayModal({ isOpen, onClose, date }) {
   const users = useAppStore(useShallow((state) => state.users));
-  const [trainingInfo, setTrainingInfo] = useState(null);
+  const {
+    dayExercisesByDate,
+    trainingInfoByDate,
+    setTrainingInfoForDate,
+    clearTrainingInfoForDate,
+  } = useTrainingStore(
+    useShallow((state) => ({
+      dayExercisesByDate: state.dayExercisesByDate,
+      trainingInfoByDate: state.trainingInfoByDate,
+      setTrainingInfoForDate: state.setTrainingInfoForDate,
+      clearTrainingInfoForDate: state.clearTrainingInfoForDate,
+    }))
+  );
+  const dateKey = date ? new Date(date).toLocaleDateString('en-CA') : null;
+  const cachedTrainingInfo = dateKey ? trainingInfoByDate[dateKey] : undefined;
+  const [trainingInfo, setTrainingInfo] = useState(cachedTrainingInfo ?? null);
 
   const groupedExercises = useMemo(() => {
+    const dayExercises = dateKey ? dayExercisesByDate[dateKey] ?? [] : [];
     if (!Array.isArray(dayExercises)) return {};
     const sortedExercises = [...dayExercises].sort((a, b) => {
       const dateA = a.date ? new Date(a.date).getTime() : 0;
@@ -23,29 +40,36 @@ function DayModal({ isOpen, onClose, dayExercises, date }) {
       acc[userId].push(ex);
       return acc;
     }, {});
-  }, [dayExercises]);
+  }, [dateKey, dayExercisesByDate]);
   
   
   useEffect(() => {
     const fetchTrainingData = async () => {
-      if (!isOpen || !date) return;
-      const normalizedDate = new Date(date);
+      if (!isOpen || !dateKey) return;
+
+      if (cachedTrainingInfo !== undefined) {
+        setTrainingInfo(cachedTrainingInfo ?? null);
+        return;
+      }
+
+      setTrainingInfo(null);
       try {
-        const formattedDate = normalizedDate.toLocaleDateString('en-CA');
-        const trainingData = await getTrainingData(formattedDate);
+        const trainingData = await getTrainingData(dateKey);
         if (!trainingData || Array.isArray(trainingData)) {
-          setTrainingInfo(null);
+          setTrainingInfoForDate(dateKey, null);
           return;
         }
         const duration = getDuration(trainingData.created_at, trainingData.finished_at);
-        setTrainingInfo({ ...trainingData, duration });
+        const info = { ...trainingData, duration };
+        setTrainingInfo(info);
+        setTrainingInfoForDate(dateKey, info);
       } catch (error) {
         console.error('Error loading training data:', error);
-      } 
+      }
     };
 
     fetchTrainingData();
-  }, [isOpen, date]);
+  }, [isOpen, dateKey, cachedTrainingInfo, setTrainingInfoForDate]);
 
   const formatTime = (value) => {
     if (!value) return '--';
@@ -78,6 +102,7 @@ function DayModal({ isOpen, onClose, dayExercises, date }) {
       const { success } = await deleteTrainingTime(trainingInfo.id);
       if (success) {
         setTrainingInfo(null);
+        if (dateKey) clearTrainingInfoForDate(dateKey);
         onClose();
       }
     } catch (error) {
@@ -121,7 +146,7 @@ function DayModal({ isOpen, onClose, dayExercises, date }) {
                 {users?.find((u) => u.id === userId).username}
               </h3>
               <ul className="list-disc list-inside text-white">
-                {exercises.reverse().map((ex, i) => (
+                {[...exercises].reverse().map((ex, i) => (
                   <li key={i}>
                     {ex.exercise}
                   </li>

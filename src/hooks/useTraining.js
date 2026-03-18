@@ -1,12 +1,12 @@
 import { useEffect, useState} from 'react';
 import { startTraining } from '../utils/startTraining';
 import { finishTraining } from '../utils/finishTraining';
-import { useAppStore } from '../store/appStore';
+import { useTrainingStore } from '../store/trainingStore';
 import { useShallow } from 'zustand/shallow';
 
 export function useTraining() {
   const [isLoading, setIsLoading] = useState(false);
-  const { startTrainingTime, setStartTrainingTime } = useAppStore(useShallow((state) => ({
+  const { startTrainingTime, setStartTrainingTime } = useTrainingStore(useShallow((state) => ({
     startTrainingTime: state.startTrainingTime,
     setStartTrainingTime: state.setStartTrainingTime,
   })));

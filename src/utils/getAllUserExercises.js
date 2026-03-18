@@ -1,4 +1,5 @@
 import { supabase } from "../supabase";
+import { useAppStore } from "../store/appStore";
 
 export const getAllUserExercises = async () => {
   const { data: logsData, error: logsError } = await supabase
@@ -16,15 +17,7 @@ export const getAllUserExercises = async () => {
   }
 
   const uniqueNames = Array.from(new Set(logsData.map((item) => item.exercise)));
-
-  const { data: exercisesData, error: exercisesError } = await supabase
-    .from("exercises")
-    .select("exercise_name, muscle");
-
-  if (exercisesError) {
-    console.error("Error fetching exercises:", exercisesError);
-    return uniqueNames.map((name) => ({ name, muscle: "" }));
-  }
+  const exercisesData = useAppStore.getState().exercises;
 
   const muscleByExerciseName = (exercisesData || []).reduce((acc, row) => {
     if (!acc[row.exercise_name]) {

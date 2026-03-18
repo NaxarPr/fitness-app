@@ -9,6 +9,7 @@ const getInitialHideWeights = () => {
 
 export const useAppStore = create((set, get) => ({
   users: [],
+  exercises: [],
   setUsers: (users) => {
     if (typeof users === 'function') {
       set((state) => ({ users: users(state.users) }));
@@ -22,11 +23,18 @@ export const useAppStore = create((set, get) => ({
   fetchUsers: async () => {
     set({ loading: true });
     try {
-      const { data: usersData } = await supabase.from('users').select('*');
-      const { data: weightData } = await supabase.from('weight_logs').select('*');
+      const [
+        { data: usersData },
+        { data: weightData },
+        { data: exercisesData },
+      ] = await Promise.all([
+        supabase.from('users').select('*'),
+        supabase.from('weight_logs').select('*'),
+        supabase.from('exercises').select('*'),
+      ]);
 
       if (!usersData || !weightData) {
-        set({ users: [] });
+        set({ users: [], exercises: exercisesData || [] });
         return;
       }
 
@@ -53,7 +61,7 @@ export const useAppStore = create((set, get) => ({
         })
       );
 
-      set({ users: usersWithWeight });
+      set({ users: usersWithWeight, exercises: exercisesData || [] });
     } catch (error) {
       console.error('Error fetching users:', error);
     } finally {
@@ -61,9 +69,8 @@ export const useAppStore = create((set, get) => ({
     }
   },
 
-  startTrainingTime: null,
-  setStartTrainingTime: (startTrainingTime) => {
-    set({ startTrainingTime });
+  addExerciseToStore: (exercise) => {
+    set((state) => ({ exercises: [...state.exercises, exercise] }));
   },
 
   column: 'flex-col',

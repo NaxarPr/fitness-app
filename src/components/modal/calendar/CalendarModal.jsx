@@ -11,6 +11,8 @@ import { getTrainingDates } from '../../../utils/getTrainingDates';
 import { getExercisesByDate } from '../../../utils/getExerciseByDate';
 import DayModal from './DayModal';
 import { Loader } from '../../common/Loader';
+import { useTrainingStore } from '../../../store/trainingStore';
+import { useShallow } from 'zustand/shallow';
 
 const locales = {
   'en-US': require('date-fns/locale/en-US'),
@@ -43,9 +45,15 @@ const CalendarModal = ({ isOpen, onClose }) => {
   const monthName = format(currentDate, 'MMMM yyyy');
   const [trainingDates, setTrainingDates] = useState([]);
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
-  const [dayExercises, setDayExercises] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [loadingDate, setLoadingDate] = useState(null);
+
+  const { dayExercisesByDate, setDayExercisesForDate } = useTrainingStore(
+    useShallow((state) => ({
+      dayExercisesByDate: state.dayExercisesByDate,
+      setDayExercisesForDate: state.setDayExercisesForDate,
+    }))
+  );
 
   useEffect(() => {
     const getTraining = async () => {
@@ -77,18 +85,26 @@ const CalendarModal = ({ isOpen, onClose }) => {
 
 
   const handleDateClick = async (date) => {
+    const dateKey = date.toLocaleDateString('en-CA');
+    const cached = dayExercisesByDate[dateKey];
 
-      try {  
-        setLoadingDate(date.toDateString());
-        const exercisesByDate = await getExercisesByDate(date);
-        setDayExercises(exercisesByDate);
-        setSelectedDate(date);
-        setIsDayModalOpen(true);
-      } catch (error) {
-        console.error('Error fetching exercises by date:', error);
-      } finally {
-        setLoadingDate(null);
-      }
+    if (cached !== undefined) {
+      setSelectedDate(date);
+      setIsDayModalOpen(true);
+      return;
+    }
+
+    try {
+      setLoadingDate(date.toDateString());
+      const exercisesByDate = await getExercisesByDate(date);
+      setDayExercisesForDate(dateKey, exercisesByDate);
+      setSelectedDate(date);
+      setIsDayModalOpen(true);
+    } catch (error) {
+      console.error('Error fetching exercises by date:', error);
+    } finally {
+      setLoadingDate(null);
+    }
   };
   return (
     <div onClick={onClose} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -148,10 +164,8 @@ const CalendarModal = ({ isOpen, onClose }) => {
         onClose={(e) => {
           e.stopPropagation();
           setIsDayModalOpen(false);
-          setDayExercises([]);
           setSelectedDate(null);
         }}
-        dayExercises={dayExercises}
         date={selectedDate}
       />
     </div>

@@ -113,7 +113,7 @@ const SwipeToAction = ({
     } else {
       setTranslateX(0);
     }
-  }, [isDragging, isActioning, translateX, threshold, onAction]);
+  }, [isDragging, isActioning, translateX, threshold]);
 
   const handleConfirmAction = useCallback(() => {
     setShowConfirmModal(false);
