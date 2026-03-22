@@ -74,7 +74,7 @@ const CalendarModal = ({ isOpen, onClose }) => {
     return () => {
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+  }, [isOpen, trainingDates.length, setTrainingDates]);
 
   if (!isOpen) return null;
 

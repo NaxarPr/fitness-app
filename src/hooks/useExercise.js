@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../supabase';
 import { addExercise } from '../utils/addExercise';
 import { addExercise as addExerciseToCatalog } from '../utils/getAllExercises';
 import { useAppStore } from '../store/appStore';
 import { getExercisesByName } from '../utils/getExercisesByName';
 import { DEFAULT_EXERCISE_VALUES, EXERCISES, INITIAL_VALUES } from '../const/exercises';
 import { useTraining } from './useTraining';
+import { useTrainingStore } from '../store/trainingStore';
 
 
 export function useExercise(name, user, setCompletedExercises, setComment, savedValues = null, onValuesChange = null) {
@@ -54,6 +54,41 @@ export function useExercise(name, user, setCompletedExercises, setComment, saved
     }
   }, [name, savedValues]);
 
+  const fetchExerciseHistory = useCallback(
+    async ({ force = false, name: nameOverride } = {}) => {
+      if (!user?.id) return;
+      const targetName = nameOverride ?? exerciseName;
+      const cacheKey = `${user.id}::${targetName}`;
+      const { exerciseHistoryByKey, setExerciseHistoryForExercise } = useTrainingStore.getState();
+
+      const applyLogsToUi = (exercises) => {
+        setExerciseHistory(exercises);
+        if (exercises && exercises.length > 0) {
+          const lastExercise = exercises[0];
+          setComment(lastExercise.comment || '');
+          setOldValues([
+            { key: 'first', placeholder: lastExercise.first },
+            { key: 'second', placeholder: lastExercise.second },
+            { key: 'third', placeholder: lastExercise.third },
+            { key: 'fourth', placeholder: lastExercise.fourth },
+          ]);
+        } else {
+          setOldValues(INITIAL_VALUES);
+        }
+      };
+
+      if (!force && Object.prototype.hasOwnProperty.call(exerciseHistoryByKey, cacheKey)) {
+        applyLogsToUi(exerciseHistoryByKey[cacheKey]);
+        return;
+      }
+
+      const exercises = await getExercisesByName(targetName, user);
+      setExerciseHistoryForExercise(user.id, targetName, exercises);
+      applyLogsToUi(exercises);
+    },
+    [exerciseName, user, setComment]
+  );
+
   const handleChange = (field, value) => {
     if (/^\d{0,2}$/.test(value)) {
       setValues((prev) => {
@@ -84,7 +119,7 @@ export function useExercise(name, user, setCompletedExercises, setComment, saved
       }
       await addExercise(name, values, user, comment);
       setCompletedExercises((prev) => [...prev, name]);
-      fetchExerciseHistory();
+      await fetchExerciseHistory({ force: true });
       setIsReady(false);
     } catch (error) {
       console.error('Error adding exercise:', error);
@@ -96,7 +131,7 @@ export function useExercise(name, user, setCompletedExercises, setComment, saved
   const switchExercise = (newName) => {
     setExerciseName(newName);
     setShowAlternatives(false);
-    fetchExerciseHistory();
+    fetchExerciseHistory({ name: newName });
   };
 
   useEffect(() => {
@@ -108,36 +143,8 @@ export function useExercise(name, user, setCompletedExercises, setComment, saved
   }, [values]);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const { data: exerciseData } = await supabase
-        .from('exercise_logs')
-        .select('*')
-        .eq('exercise', exerciseName) 
-        .eq('user_id', user.id);
-        
-      if (exerciseData && exerciseData.length > 0) {
-        const lastExercise = exerciseData[exerciseData.length - 1];
-        setComment(lastExercise.comment || '');
-        setOldValues([
-          { key: 'first', placeholder: lastExercise.first },
-          { key: 'second', placeholder: lastExercise.second },
-          { key: 'third', placeholder: lastExercise.third },
-          { key: 'fourth', placeholder: lastExercise.fourth }
-        ]);
-      } else {
-        setOldValues(INITIAL_VALUES);
-      }
-    };
-
-    fetchUsers();
     fetchExerciseHistory();
-    // eslint-disable-next-line 
-  }, [exerciseName, user.id]);
-
-  const fetchExerciseHistory = async () => {
-    const exercises = await getExercisesByName(exerciseName, user);
-    setExerciseHistory(exercises);
-  };
+  }, [exerciseName, user.id, fetchExerciseHistory]);
 
   return {
     isReady,

@@ -37,4 +37,15 @@ export const useTrainingStore = create((set) => ({
   setTrainingDates: (dates) => {
     set({ trainingDates: dates });
   },
+
+  exerciseHistoryByKey: {},
+  setExerciseHistoryForExercise: (userId, exerciseName, exercises) => {
+    const key = `${userId}::${exerciseName}`;
+    set((state) => ({
+      exerciseHistoryByKey: {
+        ...state.exerciseHistoryByKey,
+        [key]: exercises,
+      },
+    }));
+  },
 }));

@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { saveWeight } from "../utils/saveWeight";
 import WeightModal from "./modal/weight/WeightModal";
-import { getWeightHistory } from "../utils/getWeightHistory";
 import Input from "./common/Input";
 import SystemButton from "./common/SystemButton";
 import { useAppStore } from "../store/appStore";

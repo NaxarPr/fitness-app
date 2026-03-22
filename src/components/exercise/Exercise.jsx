@@ -172,7 +172,7 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDe
         exerciseName={exerciseName}
         user={user}
         onDelete={() => {
-          fetchExerciseHistory();
+          fetchExerciseHistory({ force: true });
           setCompletedExercises(prev => prev.filter(exercise => exercise !== exerciseName));
           setComment(null);
         }}
