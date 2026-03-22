@@ -14,7 +14,6 @@ function UserWeight({ user }) {
 
   const [editWeight, setEditWeight] = useState(false);
   const [params, setParams] = useState(INITIAL_PARAMS);
-  const [weightHistory, setWeightHistory] = useState([]);
   const [showWeightModal, setShowWeightModal] = useState(false);
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -28,28 +27,7 @@ function UserWeight({ user }) {
   const handleSaveClick = async () => {
     await saveWeight(params.weight, user, selectedDate, params);
     setEditWeight(false);
-    fetchWeightHistory();
   };
-
-  const fetchWeightHistory = async () => {
-    const history = await getWeightHistory(user);
-    setWeightHistory(history);
-    const latest = history[0];
-    if (latest) {
-      setParams({
-        ...INITIAL_PARAMS,
-        ...(latest.params && typeof latest.params === "object"
-          ? latest.params
-          : {}),
-        weight: latest.weight ?? latest.params?.weight ?? null,
-      });
-    }
-  };
-
-  useEffect(() => {
-    fetchWeightHistory();
-    // eslint-disable-next-line 
-  }, [user]);
 
   return (
     <div>
@@ -101,7 +79,7 @@ function UserWeight({ user }) {
             >
               Weight: {user.weight} kg
             </p>
-            {weightHistory.length > 0 && (
+            {user.weight_history.length > 0 && (
               <button
                 className="text-xs text-gray-400"
                 onClick={() => setShowWeightModal(true)}
@@ -116,7 +94,7 @@ function UserWeight({ user }) {
       <WeightModal
         isOpen={showWeightModal}
         onClose={() => setShowWeightModal(false)}
-        weightHistory={weightHistory}
+        weightHistory={user.weight_history}
       />
     </div>
   );

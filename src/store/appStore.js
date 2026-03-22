@@ -48,14 +48,16 @@ export const useAppStore = create((set, get) => ({
 
       const usersWithWeight = await Promise.all(
         usersData.map(async (user) => {
-          const userWeight = weightData.filter((w) => w.user_id === user.id).pop();
+
+          const userWeight = weightData.filter((w) => w.user_id === user.id);
           const program = getProgramFromUser(user);
           const lastDay = await getLastExercise(user, program);
 
           return {
             ...user,
-            weight: userWeight ? userWeight.weight : null,
+            weight: userWeight[userWeight.length - 1]?.weight ?? null,
             last_day: lastDay,
+            weight_history: userWeight,
             program,
           };
         })

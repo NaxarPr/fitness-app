@@ -32,4 +32,9 @@ export const useTrainingStore = create((set) => ({
       },
     }));
   },
+
+  trainingDates: [],
+  setTrainingDates: (dates) => {
+    set({ trainingDates: dates });
+  },
 }));

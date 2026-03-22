@@ -43,14 +43,15 @@ const dayPropGetter = (date, trainingDates) => {
 const CalendarModal = ({ isOpen, onClose }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const monthName = format(currentDate, 'MMMM yyyy');
-  const [trainingDates, setTrainingDates] = useState([]);
   const [isDayModalOpen, setIsDayModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [loadingDate, setLoadingDate] = useState(null);
 
-  const { dayExercisesByDate, setDayExercisesForDate } = useTrainingStore(
+  const { dayExercisesByDate, setDayExercisesForDate, trainingDates, setTrainingDates } = useTrainingStore(
     useShallow((state) => ({
       dayExercisesByDate: state.dayExercisesByDate,
+      trainingDates: state.trainingDates,
+      setTrainingDates: state.setTrainingDates,
       setDayExercisesForDate: state.setDayExercisesForDate,
     }))
   );
@@ -63,7 +64,9 @@ const CalendarModal = ({ isOpen, onClose }) => {
     
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-       getTraining();
+      if (trainingDates.length === 0) {
+        getTraining();
+      }
     } else {
       document.body.style.overflow = 'unset';
     }

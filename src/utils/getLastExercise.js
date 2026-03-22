@@ -9,7 +9,7 @@ export const getLastExercise = async (user, program) => {
     .eq('user_id', user.id)
     .order('date', { ascending: false })
     .limit(1)
-    .single();
+    .maybeSingle();
 
   if (!lastExercise || !lastExercise.exercise) return null;
 

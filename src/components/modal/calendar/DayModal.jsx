@@ -37,7 +37,7 @@ function DayModal({ isOpen, onClose, date }) {
     return sortedExercises.reduce((acc, ex) => {
       const userId = ex.user_id || 'unknown';
       if (!acc[userId]) acc[userId] = [];
-      acc[userId].push(ex);
+      acc[userId].unshift(ex);
       return acc;
     }, {});
   }, [dateKey, dayExercisesByDate]);
