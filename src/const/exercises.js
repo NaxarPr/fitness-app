@@ -94,3 +94,9 @@ export const DEFAULT_EXERCISE_VALUES = {
   third: '',
   fourth: ''
 };
+
+export const EXERCISE_LOG_DRAFT = {
+  exercise: '',
+  ...DEFAULT_EXERCISE_VALUES,
+  comment: '',
+};

@@ -5,6 +5,7 @@ import { getTrainingData } from '../../../utils/getTrainingData';
 import { deleteTrainingTime } from '../../../utils/deleteTrainingTime';
 import { useShallow } from 'zustand/shallow';
 import SwipeToAction from '../../common/SwipeToAction';
+import DayModalExerciseItem from './DayModalExerciseItem';
 
 function DayModal({ isOpen, onClose, date }) {
   const users = useAppStore(useShallow((state) => state.users));
@@ -25,6 +26,8 @@ function DayModal({ isOpen, onClose, date }) {
   const cachedTrainingInfo = dateKey ? trainingInfoByDate[dateKey] : undefined;
   const [trainingInfo, setTrainingInfo] = useState(cachedTrainingInfo ?? null);
 
+  const [exclusiveEditId, setExclusiveEditId] = useState(null);
+
   const groupedExercises = useMemo(() => {
     const dayExercises = dateKey ? dayExercisesByDate[dateKey] ?? [] : [];
     if (!Array.isArray(dayExercises)) return {};
@@ -41,8 +44,12 @@ function DayModal({ isOpen, onClose, date }) {
       return acc;
     }, {});
   }, [dateKey, dayExercisesByDate]);
-  
-  
+  useEffect(() => {
+    if (!isOpen) {
+      setExclusiveEditId(null);
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     const fetchTrainingData = async () => {
       if (!isOpen || !dateKey) return;
@@ -91,6 +98,7 @@ function DayModal({ isOpen, onClose, date }) {
     if (minutes === 0) return `${hours} h`;
     return `${hours} h ${minutes} min`;
   };
+
   if (!isOpen) return null;
 
   const hasTrainingInfo =
@@ -125,15 +133,16 @@ function DayModal({ isOpen, onClose, date }) {
             confirmTitle="Delete this training?"
             confirmMessage="This will remove the training record for this day. This action cannot be undone."
           >
-          <div className="flex flex-col gap-1 rounded-lg bg-gray-700 p-4 text-white">
-            <p className="text-sm">Start: {formatTime(trainingInfo.created_at)}</p>
-            <p className="text-sm">
-              Finish: {trainingInfo.finished_at ? formatTime(trainingInfo.finished_at) : 'In progress'}
-            </p>
-            <p className="text-sm">
-              Duration: {trainingInfo.duration}
-            </p>
-          </div>
+            <p className='text-white text-sm text-center pt-2'>{date.toLocaleDateString()}</p>
+            <div className="flex justify-between gap-1 w-full px-4 py-2 text-white text-sm">
+              <p className='text-green-500'>Start: {formatTime(trainingInfo.created_at)}</p>
+              <p>
+                Duration: {trainingInfo.duration}
+              </p>
+              <p className='text-red-500'>
+                Finish: {trainingInfo.finished_at ? formatTime(trainingInfo.finished_at) : 'In progress'}
+              </p>
+            </div>
           </SwipeToAction>
         ) : null}
 
@@ -141,15 +150,21 @@ function DayModal({ isOpen, onClose, date }) {
           <p className="text-gray-400">No exercises found for this day.</p>
         ) : (
           Object.entries(groupedExercises).map(([userId, exercises]) => (
-            <div key={userId} className="mb-4">
+            <div key={userId} className="my-4">
               <h3 className="text-lg font-medium text-blue-400 mb-2">
-                {users?.find((u) => u.id === userId).username}
+                {users?.find((u) => u.id === userId)?.username ?? userId}
               </h3>
-              <ul className="list-disc list-inside text-white">
-                {[...exercises].reverse().map((ex, i) => (
-                  <li key={i}>
-                    {ex.exercise}
-                  </li>
+              <ul className="flex flex-col gap-1 text-white">
+                {[...exercises].reverse().map((ex) => (
+                  <DayModalExerciseItem
+                    key={ex.id}
+                    ex={ex}
+                    dateKey={dateKey}
+                    exclusiveEditId={exclusiveEditId}
+                    onBeginEdit={setExclusiveEditId}
+                    onEndEdit={() => setExclusiveEditId(null)}
+                    isModalOpen={isOpen}
+                  />
                 ))}
               </ul>
             </div>
