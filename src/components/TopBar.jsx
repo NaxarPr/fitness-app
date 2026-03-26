@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAppStore } from '../store/appStore';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '../supabase';
 import { StartStopTraining } from './StartStopTraining';
 import CalendarModal from './modal/calendar/CalendarModal';
 import ContextMenu from '../components/common/ContextMenu';
@@ -51,6 +52,11 @@ export function TopBar() {
     setTheme(next);
   };
 
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+  };
+
   const contextMenuItems = [
     {
       label: 'Calendar',
@@ -72,6 +78,11 @@ export function TopBar() {
       icon: '⚖️',
       onClick: () => handleHideWeights(),
     },
+    {
+      label: 'Sign out',
+      icon: '🚪',
+      onClick: handleSignOut,
+    }
   ];
 
   return (
