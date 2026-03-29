@@ -60,4 +60,16 @@ export const useTrainingStore = create((set) => ({
     set({ allUserExercises: exercises });
   },
 
+  exerciseLogsTick: 0,
+  bumpExerciseLogs: (opts = {}) =>
+    set((state) => {
+      const next = { exerciseLogsTick: state.exerciseLogsTick + 1 };
+      if (opts.invalidateTodayDayCache) {
+        const dateKey = new Date().toLocaleDateString('en-CA');
+        const dayNext = { ...state.dayExercisesByDate };
+        delete dayNext[dateKey];
+        next.dayExercisesByDate = dayNext;
+      }
+      return next;
+    }),
 }));

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { addExercise } from '../utils/addExercise';
 import { addExercise as addExerciseToCatalog } from '../utils/getAllExercises';
 import { useAppStore } from '../store/appStore';
@@ -119,6 +119,7 @@ export function useExercise(name, user, setCompletedExercises, setComment, saved
       }
       await addExercise(name, values, user, comment);
       setCompletedExercises((prev) => [...prev, name]);
+      useTrainingStore.getState().bumpExerciseLogs({ invalidateTodayDayCache: true });
       await fetchExerciseHistory({ force: true });
       setIsReady(false);
     } catch (error) {
@@ -142,9 +143,16 @@ export function useExercise(name, user, setCompletedExercises, setComment, saved
     }
   }, [values]);
 
+  const exerciseLogsTick = useTrainingStore((state) => state.exerciseLogsTick);
+  const prevExerciseLogsTickRef = useRef(null);
+
   useEffect(() => {
-    fetchExerciseHistory();
-  }, [exerciseName, user.id, fetchExerciseHistory]);
+    const tickChanged =
+      prevExerciseLogsTickRef.current !== null &&
+      prevExerciseLogsTickRef.current !== exerciseLogsTick;
+    prevExerciseLogsTickRef.current = exerciseLogsTick;
+    fetchExerciseHistory({ force: tickChanged });
+  }, [exerciseName, user.id, exerciseLogsTick, fetchExerciseHistory]);
 
   return {
     isReady,

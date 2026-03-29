@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { supabase } from "../supabase";
+import { useTrainingStore } from "../store/trainingStore";
 
 const USER_EXERCISES_BY_DAY_KEY = 'userExercisesByDay';
 
@@ -114,31 +115,31 @@ export function useExercisesList({ user }) {
     });
   }, [saveUserToLocalStorage, selectedDay]);
 
-  useEffect(() => {
-    const fetchCompletedExercises = async () => {
-      const today = new Date().toISOString().split("T")[0];
-      try {        
-        const { data } = await supabase
-          .from("exercise_logs")
-          .select("exercise")
-          .eq("user_id", user.id)
-          .gte("date", today)
-          .lt(
-            "date",
-            new Date(
-              new Date(today).getTime() + 24 * 60 * 60 * 1000
-            ).toISOString()
-          );
-        if (data) {
-          setCompletedExercises(data.map((item) => item.exercise));
-        }
-      } catch (error) {
-        console.error("Error fetching completed exercises:", error);
+  const refetchCompletedExercises = useCallback(async () => {
+    const today = new Date().toISOString().split("T")[0];
+    try {
+      const { data } = await supabase
+        .from("exercise_logs")
+        .select("exercise")
+        .eq("user_id", user.id)
+        .gte("date", today)
+        .lt(
+          "date",
+          new Date(new Date(today).getTime() + 24 * 60 * 60 * 1000).toISOString()
+        );
+      if (data) {
+        setCompletedExercises(data.map((item) => item.exercise));
       }
-    };
-
-    fetchCompletedExercises();
+    } catch (error) {
+      console.error("Error fetching completed exercises:", error);
+    }
   }, [user.id]);
+
+  const exerciseLogsTick = useTrainingStore((state) => state.exerciseLogsTick);
+
+  useEffect(() => {
+    refetchCompletedExercises();
+  }, [refetchCompletedExercises, exerciseLogsTick]);
 
   return {
     selectedDay,

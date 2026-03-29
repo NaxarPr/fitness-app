@@ -12,13 +12,20 @@ export const finishTraining = async () => {
 
   if (!existingStart) {
     console.error('No start found for today');
-    return;
+    return { success: false };
   }
 
-  await supabase
+  const { error } = await supabase
     .from('training_time')
     .update({
       finished_at: now.toISOString(),
     })
     .eq('id', existingStart.id);
+
+  if (error) {
+    console.error(error);
+    return { success: false };
+  }
+
+  return { success: true, dateKey: localDate };
 };

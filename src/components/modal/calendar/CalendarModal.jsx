@@ -26,11 +26,9 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const dayPropGetter = (date, trainingDates) => {  
-  const hasTraining = trainingDates?.some(trainingDate => {
-    const eventDate = new Date(trainingDate);
-    return eventDate.toDateString() === date.toDateString();
-  });
+const dayPropGetter = (date, trainingDates) => {
+  const dateKey = format(date, 'yyyy-MM-dd');
+  const hasTraining = trainingDates?.some((trainingDate) => trainingDate === dateKey);
 
   if (hasTraining) {
     return {
@@ -47,34 +45,39 @@ const CalendarModal = ({ isOpen, onClose }) => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [loadingDate, setLoadingDate] = useState(null);
 
-  const { dayExercisesByDate, setDayExercisesForDate, trainingDates, setTrainingDates } = useTrainingStore(
-    useShallow((state) => ({
-      dayExercisesByDate: state.dayExercisesByDate,
-      trainingDates: state.trainingDates,
-      setTrainingDates: state.setTrainingDates,
-      setDayExercisesForDate: state.setDayExercisesForDate,
-    }))
-  );
+  const { dayExercisesByDate, setDayExercisesForDate, trainingDates, setTrainingDates, exerciseLogsTick } =
+    useTrainingStore(
+      useShallow((state) => ({
+        dayExercisesByDate: state.dayExercisesByDate,
+        trainingDates: state.trainingDates,
+        setTrainingDates: state.setTrainingDates,
+        setDayExercisesForDate: state.setDayExercisesForDate,
+        exerciseLogsTick: state.exerciseLogsTick,
+      }))
+    );
 
   useEffect(() => {
-    const getTraining = async () => {
-      const dates = await getTrainingDates();
-      setTrainingDates(dates);
-    }
-    
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      if (trainingDates.length === 0) {
-        getTraining();
-      }
-    } else {
+    if (!isOpen) {
       document.body.style.overflow = 'unset';
+      return () => {
+        document.body.style.overflow = 'unset';
+      };
     }
-    
+
+    document.body.style.overflow = 'hidden';
+    let cancelled = false;
+    (async () => {
+      const dates = await getTrainingDates();
+      if (!cancelled) {
+        setTrainingDates(dates);
+      }
+    })();
+
     return () => {
+      cancelled = true;
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen, trainingDates.length, setTrainingDates]);
+  }, [isOpen, exerciseLogsTick, setTrainingDates]);
 
   if (!isOpen) return null;
 
@@ -91,7 +94,9 @@ const CalendarModal = ({ isOpen, onClose }) => {
     const dateKey = date.toLocaleDateString('en-CA');
     const cached = dayExercisesByDate[dateKey];
 
-    if (cached !== undefined) {
+    const isInTrainingDates = trainingDates.some((d) => String(d) === String(dateKey));
+
+    if (cached !== undefined || !isInTrainingDates) {
       setSelectedDate(date);
       setIsDayModalOpen(true);
       return;
@@ -109,6 +114,7 @@ const CalendarModal = ({ isOpen, onClose }) => {
       setLoadingDate(null);
     }
   };
+  
   return (
     <div onClick={onClose} className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div onClick={e => e.stopPropagation()} className="bg-main p-6 rounded-lg shadow-xl w-[90%] max-w-4xl relative max-h-[80vh] overflow-y-auto">

@@ -13,7 +13,7 @@ export const getTrainingDates = async () => {
 
   if (!trainingDates) return [];
 
-  const uniqueDates = [...new Set(trainingDates.map(record => record.date.split('T')[0]))];
-  
-  return uniqueDates.map(dateString => new Date(dateString)).sort((a, b) => b - a);
+  const uniqueDates = [...new Set(trainingDates.map((record) => record.date.split('T')[0]))];
+
+  return uniqueDates.sort((a, b) => b.localeCompare(a));
 }; 

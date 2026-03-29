@@ -6,10 +6,13 @@ import { useShallow } from 'zustand/shallow';
 
 export function useTraining() {
   const [isLoading, setIsLoading] = useState(false);
-  const { startTrainingTime, setStartTrainingTime } = useTrainingStore(useShallow((state) => ({
-    startTrainingTime: state.startTrainingTime,
-    setStartTrainingTime: state.setStartTrainingTime,
-  })));
+  const { startTrainingTime, setStartTrainingTime, clearTrainingInfoForDate } = useTrainingStore(
+    useShallow((state) => ({
+      startTrainingTime: state.startTrainingTime,
+      setStartTrainingTime: state.setStartTrainingTime,
+      clearTrainingInfoForDate: state.clearTrainingInfoForDate,
+    }))
+  );
   const [elapsedTime, setElapsedTime] = useState('00:00:00');
 
   const formatTime = (seconds) => {
@@ -43,13 +46,16 @@ export function useTraining() {
 
   const handleFinishTraining = async () => {
     setIsLoading(true);
-    try{
-      await finishTraining();
+    try {
+      const result = await finishTraining();
+      if (result?.success && result.dateKey) {
+        clearTrainingInfoForDate(result.dateKey);
+      }
       setStartTrainingTime(null);
       setElapsedTime('00:00:00');
       localStorage.removeItem('isTrainingStarted');
       localStorage.removeItem('userExercisesByDay');
-    } catch(error){
+    } catch (error) {
       console.error('Error finishing training:', error);
     } finally {
       setIsLoading(false);

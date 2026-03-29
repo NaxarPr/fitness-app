@@ -24,6 +24,8 @@ const isExerciseDraftComplete = (draft) => {
   return INITIAL_VALUES.every(({ key }) => isFilled(draft[key]));
 };
 
+const getTodayDateKey = () => new Date().toLocaleDateString('en-CA');
+
 const DayModalExerciseItem = ({
   ex,
   dateKey,
@@ -44,6 +46,7 @@ const DayModalExerciseItem = ({
   const [isSaving, setIsSaving] = useState(false);
 
   const isEditing = exclusiveEditId === ex.id;
+  const isTodayTraining = Boolean(dateKey && dateKey === getTodayDateKey());
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -52,8 +55,8 @@ const DayModalExerciseItem = ({
   }, [isModalOpen]);
 
   const handleContextMenu = (e) => {
-    if (isEditing) return;
     e.preventDefault();
+    if (isTodayTraining || isEditing) return;
     setDraft({
       ...EXERCISE_LOG_DRAFT,
       exercise: ex.exercise ?? '',
@@ -77,6 +80,7 @@ const DayModalExerciseItem = ({
       const list = dayExercisesByDate[dateKey] ?? [];
       const next = list.map((row) => (row.id === ex.id ? { ...row, ...data } : row));
       setDayExercisesForDate(dateKey, next);
+      useTrainingStore.getState().bumpExerciseLogs();
       onEndEdit();
     } finally {
       setIsSaving(false);
@@ -94,6 +98,7 @@ const DayModalExerciseItem = ({
         dateKey,
         list.filter((row) => row.id !== ex.id)
       );
+      useTrainingStore.getState().bumpExerciseLogs();
       onEndEdit();
     } finally {
       setIsSaving(false);
