@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { getAllUserExercises } from '../utils/getAllUserExercises';
 
 export const useTrainingStore = create((set) => ({
   startTrainingTime: null,
@@ -48,4 +49,15 @@ export const useTrainingStore = create((set) => ({
       },
     }));
   },
+
+  allUserExercises: [],
+  setAllUserExercises: (exercises) => {
+    set({ allUserExercises: exercises });
+  },
+
+  fetchAllUserExercises: async () => {
+    const exercises = await getAllUserExercises();
+    set({ allUserExercises: exercises });
+  },
+
 }));

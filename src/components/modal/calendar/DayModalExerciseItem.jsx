@@ -6,7 +6,6 @@ import { deleteExerciseLogById } from '../../../utils/deleteExerciseLogById';
 import { EXERCISE_LOG_DRAFT, INITIAL_VALUES } from '../../../const/exercises';
 import SystemButton from '../../common/SystemButton';
 import SwipeToAction from '../../common/SwipeToAction';
-import { getAllUserExercises } from '../../../utils/getAllUserExercises';
 import Select from '../../common/Select';
 import Input from '../../common/Input';
 
@@ -33,16 +32,16 @@ const DayModalExerciseItem = ({
   onEndEdit,
   isModalOpen,
 }) => {
-  const { dayExercisesByDate, setDayExercisesForDate } = useTrainingStore(
+  const { dayExercisesByDate, setDayExercisesForDate, allUserExercises } = useTrainingStore(
     useShallow((state) => ({
       dayExercisesByDate: state.dayExercisesByDate,
       setDayExercisesForDate: state.setDayExercisesForDate,
+      allUserExercises: state.allUserExercises,
     }))
   );
 
   const [draft, setDraft] = useState(() => ({ ...EXERCISE_LOG_DRAFT }));
   const [isSaving, setIsSaving] = useState(false);
-  const [allUserExercises, setAllUserExercises] = useState([]);
 
   const isEditing = exclusiveEditId === ex.id;
 
@@ -51,16 +50,6 @@ const DayModalExerciseItem = ({
       setIsSaving(false);
     }
   }, [isModalOpen]);
-
-
-  useEffect(() => {
-      const fetchAllUserExercises = async () => {
-        const uniqueUserExercises = await getAllUserExercises();
-        setAllUserExercises(uniqueUserExercises);
-      };
-
-      fetchAllUserExercises();
-  }, []);
 
   const handleContextMenu = (e) => {
     if (isEditing) return;

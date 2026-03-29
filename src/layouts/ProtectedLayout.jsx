@@ -4,10 +4,13 @@ import { useAppStore } from '../store/appStore';
 import { useAuthStore } from '../store/authStore';
 import { useShallow } from 'zustand/shallow';
 import { Loader } from '../components/common/Loader';
+import { useTrainingStore } from '../store/trainingStore';
 
 const ProtectedLayout = () => {
   const location = useLocation();
   const fetchUsers = useAppStore(useShallow((state) => state.fetchUsers));
+  const fetchAllUserExercises = useTrainingStore(useShallow((state) => state.fetchAllUserExercises));
+  
   const { session, initializing } = useAuthStore(
     useShallow((state) => ({
       session: state.session,
@@ -20,7 +23,8 @@ const ProtectedLayout = () => {
       return;
     }
     fetchUsers();
-  }, [fetchUsers, initializing, session]);
+    fetchAllUserExercises();
+  }, [fetchUsers, fetchAllUserExercises, initializing, session]);
 
   if (initializing) {
     return (

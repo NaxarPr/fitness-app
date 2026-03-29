@@ -1,30 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useTrainingStore } from "../../store/trainingStore";
 import ContextMenu from "../common/ContextMenu";
 import Select from "../common/Select";
 import SystemButton from "../common/SystemButton";
-import { getAllUserExercises } from "../../utils/getAllUserExercises";
+import { useShallow } from "zustand/shallow";
 
 const MUSCLES = ['Ноги', 'Спина', 'Плечі', 'Груди', 'Трицепс', 'Бицепс', 'Прес', 'Кисть', 'Кардіо'];
 
-function AddNewExersice({ user, setExercises, absButton = true }) {
+function AddNewExercise({ user, setExercises, absButton = true }) {
   const [exerciseName, setExerciseName] = useState("");
   const [step, setStep] = useState(1);
-  const [allUserExercises, setAllUserExercises] = useState([]);
   const [selectedMuscle, setSelectedMuscle] = useState(null);
   const [muscleMenuOpen, setMuscleMenuOpen] = useState(false);
   const [muscleMenuPosition, setMuscleMenuPosition] = useState({ x: 0, y: 0 });
   const muscleTriggerRef = useRef(null);
 
-  useEffect(() => {
-    if (step === 2) {
-      const fetchAllUserExercises = async () => {
-        const uniqueUserExercises = await getAllUserExercises();
-        setAllUserExercises(uniqueUserExercises);
-      };
-
-      fetchAllUserExercises();
-    }
-  }, [step, user.id]);
+  const  allUserExercises  = useTrainingStore(useShallow((state) => state.allUserExercises));
 
   const handleAddExercise = () => {
     setStep(1);
@@ -105,4 +96,4 @@ function AddNewExersice({ user, setExercises, absButton = true }) {
   }
 }
 
-export default AddNewExersice;
+export default AddNewExercise;

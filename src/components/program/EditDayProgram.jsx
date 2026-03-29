@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import AddNewExersice from '../exercise/AddNewExersice';
+import AddNewExercise from '../exercise/AddNewExercise';
 import SwipeToAction from '../common/SwipeToAction';
 import { SortableList } from '../exercise/sortable/SortableList.tsx';
 
@@ -55,7 +55,7 @@ export const EditDayProgram = ({ user, dayNumber, setDayNumber, exercises, setEx
           />
         </div>
       )}
-      <AddNewExersice user={user} setExercises={setExercises} absButton={false} />
+      <AddNewExercise user={user} setExercises={setExercises} absButton={false} />
       <button
         className="bg-gray-800 rounded-md hover:text-gray-300 hover:bg-gray-700 px-2 py-1"
         onClick={() => handleSaveClick(user)}

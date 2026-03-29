@@ -1,7 +1,7 @@
 import React from "react";
 import Exercise from "./Exercise";
 import ExerciseContainerHeader from "./ExerciseContainerHeader";
-import AddNewExersice from "./AddNewExersice";
+import AddNewExercise from "./AddNewExercise";
 import { SortableList } from "./sortable/SortableList.tsx";
 import { useExercisesList } from "../../hooks/useExercisesList";
 
@@ -29,7 +29,7 @@ export default function ExerciseContainer({ index, user }) {
         lastDay={user.last_day}
       />
       {exercises.length > 0 && <div className="relative flex flex-col justify-center items-center p-4 m-4 sm:m-8 border border-gray-700 rounded-lg">
-        <AddNewExersice user={user} setExercises={setExercises}/>
+        <AddNewExercise user={user} setExercises={setExercises}/>
         <SortableList
           items={items}
           onChange={setItems}
