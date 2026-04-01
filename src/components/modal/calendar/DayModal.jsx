@@ -6,6 +6,10 @@ import { deleteTrainingTime } from '../../../utils/deleteTrainingTime';
 import { useShallow } from 'zustand/shallow';
 import SwipeToAction from '../../common/SwipeToAction';
 import DayModalExerciseItem from './DayModalExerciseItem';
+import {
+  formatProgramDaysLabel,
+  getProgramDayNumbersForLogs,
+} from '../../../utils/getProgramDayNumbersForLogs';
 
 function DayModal({ isOpen, onClose, date }) {
   const users = useAppStore(useShallow((state) => state.users));
@@ -134,14 +138,23 @@ function DayModal({ isOpen, onClose, date }) {
             confirmMessage="This will remove the training record for this day. This action cannot be undone."
           >
             <p className='text-white text-sm text-center pt-2'>{date.toLocaleDateString()}</p>
-            <div className="flex justify-between gap-1 w-full px-4 py-2 text-white text-sm">
+            <div className="flex justify-between gap-1 w-full px-3 py-2 text-white text-sm">
               <p className='text-green-500'>Start: {formatTime(trainingInfo.created_at)}</p>
-              <p>
-                Duration: {trainingInfo.duration}
-              </p>
-              <p className='text-red-500'>
-                Finish: {trainingInfo.finished_at ? formatTime(trainingInfo.finished_at) : 'In progress'}
-              </p>
+              {trainingInfo.finished_at ? 
+              (
+                <>
+                  <p>
+                    Duration: {trainingInfo.duration}
+                  </p>
+                  <p className='text-red-500'>
+                    Finish: {formatTime(trainingInfo.finished_at)}
+                  </p>
+                </>
+              ) : (
+                <p className='text-blue-500'>
+                  In progress
+                </p>
+              )}
             </div>
           </SwipeToAction>
         ) : null}
@@ -149,10 +162,25 @@ function DayModal({ isOpen, onClose, date }) {
         {Object.keys(groupedExercises).length === 0 ? (
           <p className="text-gray-400">No exercises found for this day.</p>
         ) : (
-          Object.entries(groupedExercises).map(([userId, exercises]) => (
+          Object.entries(groupedExercises).map(([userId, exercises]) => {
+            const sectionUser = users?.find(
+              (u) => String(u.id) === String(userId)
+            );
+            const programDays = getProgramDayNumbersForLogs(
+              exercises,
+              sectionUser?.program
+            );
+            const programDaysLabel = formatProgramDaysLabel(programDays);
+
+            return (
             <div key={userId} className="my-4">
-              <h3 className="text-lg font-medium text-blue-400 mb-2">
-                {users?.find((u) => u.id === userId)?.username ?? userId}
+              <h3 className="text-lg font-medium text-blue-400 mb-2 flex flex-wrap items-baseline gap-x-2 gap-y-0">
+                <span>{sectionUser?.username ?? userId}</span>
+                {programDaysLabel ? (
+                  <span className="text-sm font-normal text-gray-400">
+                    · {programDaysLabel}
+                  </span>
+                ) : null}
               </h3>
               <ul className="flex flex-col gap-1 text-white">
                 {[...exercises].reverse().map((ex) => (
@@ -168,7 +196,8 @@ function DayModal({ isOpen, onClose, date }) {
                 ))}
               </ul>
             </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

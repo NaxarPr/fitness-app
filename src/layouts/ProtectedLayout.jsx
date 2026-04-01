@@ -11,20 +11,21 @@ const ProtectedLayout = () => {
   const fetchUsers = useAppStore(useShallow((state) => state.fetchUsers));
   const fetchAllUserExercises = useTrainingStore(useShallow((state) => state.fetchAllUserExercises));
   
-  const { session, initializing } = useAuthStore(
+  const { session, initializing, userId } = useAuthStore(
     useShallow((state) => ({
       session: state.session,
       initializing: state.initializing,
+      userId: state.session?.user?.id,
     }))
   );
 
   useEffect(() => {
-    if (initializing || !session) {
+    if (initializing || !userId) {
       return;
     }
     fetchUsers();
     fetchAllUserExercises();
-  }, [fetchUsers, fetchAllUserExercises, initializing, session]);
+  }, [fetchUsers, fetchAllUserExercises, initializing, userId]);
 
   if (initializing) {
     return (

@@ -74,7 +74,7 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDe
         onLongPress={handleLongPress}
       >
         <div 
-          className={`p-2 flex flex-col gap-2 w-full select-none ${isCompleted ? 'bg-green-700' : ''}`}
+          className={`p-2 flex flex-col gap-2 w-full select-none ${isCompleted ? 'bg-gradient-to-br from-emerald-600 via-green-700 to-teal-900 transition-opacity duration-1500 ease-out' : ''}`}
           onContextMenu={handleContextMenu}
         >
           <p className='font-medium text-sm sm:text-base'>{exerciseName}{alternatives.length ? '*' : null}</p>

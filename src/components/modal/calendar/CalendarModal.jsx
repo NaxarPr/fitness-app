@@ -29,12 +29,20 @@ const localizer = dateFnsLocalizer({
 const dayPropGetter = (date, trainingDates) => {
   const dateKey = format(date, 'yyyy-MM-dd');
   const hasTraining = trainingDates?.some((trainingDate) => trainingDate === dateKey);
+  const isToday = date.toDateString() === new Date().toDateString();
 
   if (hasTraining) {
     return {
-      className: 'bg-green-500 text-white rounded-xl'
+      className: '!bg-green-500'
     };
   } 
+
+  if (isToday) {
+    return {
+      className: '!bg-blue-300 '
+    };
+  }
+
   return {};
 };
 
@@ -147,22 +155,18 @@ const CalendarModal = ({ isOpen, onClose }) => {
             onNavigate={setCurrentDate}
             components={{
               month: {
-                dateHeader: ({ label, date }) => {
-                  const isToday = date.toDateString() === new Date().toDateString();
-                  return (
+                dateHeader: ({ label, date }) => (
                     <div
                       className='relative flex flex-col items-center justify-center h-full p-0 m-0'
                     >
                       <div
                         onClick={async () => handleDateClick(date)}
-                        className={`absolute top-0 left-0 w-full h-14 rounded cursor-pointer transition-transform flex items-center justify-center  m-[2px]
-                          ${isToday ? 'text-green-600' : ''}`}
+                        className='absolute top-0 left-0 w-full h-14 flex items-center justify-center m-[2px]'
                       >
                         {loadingDate === date.toDateString() ? ( <Loader color='lime' className='text-white' />) : (label)}
                       </div>
                     </div>
-                  );
-                },
+                  )
               },
             }}
           />

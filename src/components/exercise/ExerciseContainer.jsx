@@ -5,7 +5,7 @@ import AddNewExercise from "./AddNewExercise";
 import { SortableList } from "./sortable/SortableList.tsx";
 import { useExercisesList } from "../../hooks/useExercisesList";
 
-export default function ExerciseContainer({ index, user }) {
+export default function ExerciseContainer({ user }) {
   const {
     selectedDay,
     setSelectedDay,
