@@ -23,16 +23,16 @@ code {
 }
 
 @layer base {
-  /* Default: Dark Blue */
+  /* Default: Dark Gray */
   :root {
-    --brand-color: #60a5fa;
-    --bg-color: #111827; /* gray-900 */
+    --brand-color: #9ca3af; /* gray-400 */
+    --bg-color: #1a1a1a; /* near-black */
   }
 
   /* Dark Blue Theme */
   [data-theme='dark-blue'] {
-    --brand-color: #60a5fa;
-    --bg-color: #111827; /* gray-900 */
+    --brand-color: #9ca3af; /* gray-400 */
+    --bg-color: #1a1a1a; /* near-black */
   }
 
   /* Dark Green Theme */

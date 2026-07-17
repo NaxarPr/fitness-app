@@ -19,18 +19,18 @@ function ExerciseContainerHeader({ onDaySelect, selectedDay, days, lastDay }) {
       <div className="relative">
         <button
           type="button"
-          className="w-20 bg-gray-800 border border-gray-700 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 hover:bg-gray-700"
+          className="w-20 bg-neutral-800 border border-neutral-700 rounded p-2 focus:outline-none focus:ring-2 focus:ring-primary hover:bg-neutral-700"
           onClick={() => setIsOpen(true)}
           onBlur={() => setTimeout(() => setIsOpen(false), 200)}
         >
           {searchInput}
         </button>
         {isOpen && (
-          <div className="absolute text-center w-full mt-1 bg-gray-800 border border-gray-700 rounded shadow-lg z-10">
+          <div className="absolute text-center w-full mt-1 bg-neutral-900 border border-neutral-700 rounded shadow-lg z-10">
             {days.map((day) => (
-              <div 
+              <div
                 key={day}
-                className="p-2 hover:bg-gray-700 cursor-pointer"
+                className="p-2 hover:bg-neutral-800 cursor-pointer"
                 onClick={() => handleDaySelect(day)}
               >
                 {day}

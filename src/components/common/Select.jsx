@@ -11,7 +11,7 @@ const Select = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState('');
   const dropdownRef = useRef(null);
-  const baseStyles = 'w-full h-8 px-2 py-1 bg-gray-800 border border-gray-700 rounded text-sm focus:outline-none focus:border-blue-500 transition-colors duration-200';
+  const baseStyles = 'w-full h-8 px-2 py-1 bg-neutral-800 border border-neutral-700 rounded text-sm focus:outline-none focus:border-primary transition-colors duration-200';
   
   useEffect(() => {
     const handleClickOutside = (event) => {
