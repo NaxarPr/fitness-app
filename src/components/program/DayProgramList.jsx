@@ -1,4 +1,5 @@
 import React from 'react';
+import { Pencil } from 'lucide-react';
 
 export const DayProgramList = ({ user, setEditDayUser, handleEditClick }) => {
   return (
@@ -11,8 +12,8 @@ export const DayProgramList = ({ user, setEditDayUser, handleEditClick }) => {
           <div key={day} className="mb-6">
               <div className='flex items-center gap-4'>
                   <h3 className="text-lg font-medium">Day {day}</h3> 
-                  <button onClick={() => handleEditClick(user, day)}>
-                      ✏️
+                  <button className="text-gray-400 hover:text-gray-200 transition-colors" onClick={() => handleEditClick(user, day)} aria-label={`Edit day ${day}`}>
+                      <Pencil size={16} />
                   </button>
               </div>
               <ul className="list-disc pl-6">

@@ -4,6 +4,7 @@ import ContextMenu from "../common/ContextMenu";
 import Select from "../common/Select";
 import SystemButton from "../common/SystemButton";
 import { useShallow } from "zustand/shallow";
+import { PlusCircle, Filter } from "lucide-react";
 
 const MUSCLES = ['Ноги', 'Спина', 'Плечі', 'Груди', 'Трицепс', 'Бицепс', 'Прес', 'Кисть', 'Кардіо'];
 
@@ -58,7 +59,7 @@ function AddNewExercise({ user, setExercises, absButton = true }) {
   switch (step) {
     case 1:
       return (
-        <button className={`z-10 rotate-45 cursor-pointer leading-none ${absButton ? 'absolute top-2 right-2 sm:top-4 sm:right-4' : ''}`} onClick={() => setStep(2)}>❎</button>
+        <button className={`z-10 cursor-pointer leading-none text-green-500 hover:text-green-400 transition-colors ${absButton ? 'absolute top-2 right-2 sm:top-4 sm:right-4' : ''}`} onClick={() => setStep(2)} aria-label="Add exercise"><PlusCircle size={26} /></button>
       );
     case 2:
       return (
@@ -78,7 +79,7 @@ function AddNewExercise({ user, setExercises, absButton = true }) {
               aria-haspopup="menu"
               aria-expanded={muscleMenuOpen}
             >
-              <span className="text-gray-200">{selectedMuscle || '⚙️'}</span>
+              <span className="flex items-center text-gray-200">{selectedMuscle || <Filter size={16} />}</span>
             </button>
             <ContextMenu
               isOpen={muscleMenuOpen}

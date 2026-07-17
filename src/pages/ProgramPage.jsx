@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 import { useAppStore } from '../store/appStore';
 import { saveUserProgram } from '../utils/saveUserProgram';
 import { EditDayProgram } from '../components/program/EditDayProgram';
@@ -58,9 +59,9 @@ function ProgramPage() {
   return (
     <div className="relative p-6">
         {EditDayUser ? (
-            <button className="text-xl" onClick={setInitialState}>⬅️</button>
+            <button className="text-primary hover:opacity-80 transition-opacity" onClick={setInitialState} aria-label="Back"><ArrowLeft size={26} /></button>
         ) : (
-            <Link to="/" className="text-xl">⬅️</Link>
+            <Link to="/" className="inline-flex text-primary hover:opacity-80 transition-opacity" aria-label="Back"><ArrowLeft size={26} /></Link>
         )}
         <h1 className="text-2xl font-bold mb-6 w-full text-center">{EditDayUser ? 'Edit Day' : 'All Exercises'}</h1>
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-between">

@@ -7,6 +7,7 @@ import { Loader } from '../common/Loader';
 import ContextMenu from '../common/ContextMenu';
 import SwipeToAction from '../common/SwipeToAction';
 import { useContextMenu } from '../../hooks/useContextMenu';
+import { X } from 'lucide-react';
 
 function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDelete, savedValues, onValuesChange }) {
   const [showLogsModal, setShowLogsModal] = useState(false);
@@ -100,8 +101,12 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDe
                   </button>
                 )}
               </div>
-              <button onClick={() => setShowAlternatives(false)}>
-                ❌
+              <button
+                className="text-red-500 hover:text-red-400 transition-colors"
+                onClick={() => setShowAlternatives(false)}
+                aria-label="Close alternatives"
+              >
+                <X size={18} />
               </button>
             </div>
           )}
@@ -148,8 +153,12 @@ function Exercise({ name, user, isCompleted, setCompletedExercises, active, onDe
           ) : comment ? (
             <div className="text-xs text-gray-400 italic">
               {comment}
-              <button className="ml-1" onClick={() => setComment(null)}>
-                ❌
+              <button
+                className="ml-1 inline-flex align-middle text-red-500 hover:text-red-400 transition-colors"
+                onClick={() => setComment(null)}
+                aria-label="Remove comment"
+              >
+                <X size={14} />
               </button>
             </div>
           ) : null}

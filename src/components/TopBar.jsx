@@ -1,12 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAppStore } from '../store/appStore';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabase';
 import { StartStopTraining } from './StartStopTraining';
 import CalendarModal from './modal/calendar/CalendarModal';
-import ContextMenu from '../components/common/ContextMenu';
-import { useContextMenu } from '../hooks/useContextMenu';
+import Sidebar from '../components/common/Sidebar';
+import { useEdgeSwipe } from '../hooks/useEdgeSwipe';
 import { useShallow } from 'zustand/shallow';
+import {
+  Menu,
+  CalendarDays,
+  ClipboardList,
+  ArrowUpDown,
+  Eye,
+  EyeOff,
+  Palette,
+  LogOut,
+} from 'lucide-react';
 
 const THEMES = ['dark-blue', 'dark-green'];
 
@@ -20,7 +30,10 @@ export function TopBar() {
       hideWeights: state.hideWeights,
     }))
   );
-  const { contextMenu, handleContextMenu, closeContextMenu } = useContextMenu();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const openMenu = useCallback(() => setIsMenuOpen(true), []);
+  const closeMenu = useCallback(() => setIsMenuOpen(false), []);
+  useEdgeSwipe(openMenu);
 
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [currentTheme, setCurrentTheme] = useState('dark-blue');
@@ -48,8 +61,7 @@ export function TopBar() {
   };
 
   const handleToggleTheme = () => {
-    const next = currentTheme === 'dark-blue' ? 'dark-green' : 'dark-blue';
-    setTheme(next);
+    setTheme(currentTheme === 'dark-blue' ? 'dark-green' : 'dark-blue');
   };
 
   const handleSignOut = async () => {
@@ -57,30 +69,43 @@ export function TopBar() {
     navigate('/login');
   };
 
-  const contextMenuItems = [
+  const menuItems = [
     {
       label: 'Calendar',
-      icon: '📅',
+      icon: <CalendarDays size={18} />,
       onClick: handleCalendar,
     },
     {
       label: 'Exercises',
-      icon: '📝',
+      icon: <ClipboardList size={18} />,
       onClick: () => navigate('/exercises'),
     },
     {
       label: 'Reverse',
-      icon: '🔄',
+      icon: <ArrowUpDown size={18} />,
+      pin: 'bottom',
       onClick: handleReverse,
     },
     {
       label: hideWeights ? 'Show weights' : 'Hide weights',
-      icon: '⚖️',
+      icon: hideWeights ? <Eye size={18} /> : <EyeOff size={18} />,
+      pin: 'bottom',
       onClick: () => handleHideWeights(),
     },
     {
+      type: 'toggle',
+      label: 'Theme',
+      icon: <Palette size={18} />,
+      checked: currentTheme === 'dark-green',
+      ariaLabel: 'Theme: left is Blue, right is Green',
+      pin: 'bottom',
+      onClick: handleToggleTheme,
+    },
+    {
       label: 'Sign out',
-      icon: '🚪',
+      icon: <LogOut size={18} />,
+      variant: 'danger',
+      pin: 'bottom',
       onClick: handleSignOut,
     }
   ];
@@ -88,38 +113,21 @@ export function TopBar() {
   return (
     <>
       <div className='flex relative items-center justify-between p-3'>
+        <button
+          type="button"
+          className='select-none focus:outline-none focus:ring-2 focus:ring-main rounded p-1'
+          onClick={openMenu}
+          aria-label="Open menu"
+        >
+          <Menu size={28} />
+        </button>
         <StartStopTraining />
-        <div className='flex items-center gap-2'>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={currentTheme === 'dark-green'}
-            aria-label="Theme: left is Blue, right is Green"
-            onClick={handleToggleTheme}
-            className="relative flex h-7 w-14 shrink-0 items-center rounded-full border border-gray-600 bg-surface p-1 focus:outline-none focus:ring-2 focus:ring-main"
-          >
-            {currentTheme !== 'dark-blue' ? ( 
-              <span className="absolute left-1.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-[#60a5fa]" aria-hidden />
-            ) : ( 
-              <span className="absolute right-1.5 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-[#1fa132]" aria-hidden />
-            )}
-          </button>
-          <button
-            type="button"
-            className='text-3xl select-none leading-none focus:outline-none focus:ring-2 focus:ring-main rounded pb-[6px]'
-            onClick={handleContextMenu}
-            aria-label="Open menu"
-          >
-            ☰
-          </button>
-        </div>
       </div>
-      <ContextMenu
-        isOpen={contextMenu.isOpen}
-        position={{ x: contextMenu.x, y: contextMenu.y }}
-        onClose={closeContextMenu}
-        items={contextMenuItems}
-        ariaLabel="Exercise context menu"
+      <Sidebar
+        isOpen={isMenuOpen}
+        onClose={closeMenu}
+        items={menuItems}
+        ariaLabel="Main menu"
       />
       <CalendarModal isOpen={isCalendarOpen} onClose={handleCalendar}/>
     </>
